@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>img/karton_logo.png</file>
+    </qresource>
+</RCC>
