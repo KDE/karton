@@ -89,4 +89,4 @@ operating system's copyright holder, and is included here only for the
 purposes of helping the user identify what OS is running on each VM. These
 files are not integrated into the Karton binary produced at build time.
 
-The Karton logo at `img/karton_logo.png` may be used under the terms of the GNU General Public License, version 3.9, or (at your option) any later version. Copyright (c) 2024 Aaron Rainbolt. (This is implied in the first paragraph but is included to avoid confusion.)
+The Karton logo at `img/karton_logo.png` may be used under the terms of the GNU General Public License, version 3.0, or (at your option) any later version. Copyright (c) 2024 Aaron Rainbolt. (This is implied in the first paragraph but is included to avoid confusion.)
