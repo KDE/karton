@@ -75,3 +75,18 @@ in significant ways from one day to the next. If you want to make an MR, it's
 probably best to coordinate with me first in our Matrix room linked above.
 
 Hope you find Karton useful!
+
+## License and Copyright
+
+Unless otherwise stated, all files in this repo may be used under the terms of
+the GNU General Public License, version 3.0, or (at your option) any later
+version. Copyright (c) 2024 Aaron Rainbolt.
+
+All files under the `img` directory, with the exception of `karton_logo.png`,
+are the official logos of various operating systems which Karton supports
+running as guests. The copyright for each image belongs to its corresponding
+operating system's copyright holder, and is included here only for the
+purposes of helping the user identify what OS is running on each VM. These
+files are not integrated into the Karton binary produced at build time.
+
+The Karton logo at `img/karton_logo.png` may be used under the terms of the GNU General Public License, version 3.9, or (at your option) any later version. Copyright (c) 2024 Aaron Rainbolt. (This is implied in the first paragraph but is included to avoid confusion.)
