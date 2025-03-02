@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
+
 [Desktop Entry]
 Categories=System;Tools;
 Comment=Run virtual machines

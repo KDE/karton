@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
+
 cmake_minimum_required(VERSION 3.16)
 
 project(karton VERSION 0.1 LANGUAGES CXX)

@@ -1,3 +1,8 @@
+<!--
+SPDX-License-Identifier: CC0-1.0
+SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
+-->
+
 # Karton - The KDE Virtual Machine Manager
 
 ## DIRE WARNING, THIS IS NOT STABLE
