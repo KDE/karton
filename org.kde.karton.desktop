@@ -4,10 +4,11 @@
 
 [Desktop Entry]
 Categories=System;Tools;
-Comment=Manage virtual machines
 Exec=karton
-Name=Karton
 Icon=karton_logo
-GenericName=Virtual Machine Manager
 Terminal=false
 Type=Application
+
+Name=Karton
+GenericName=Virtual Machine Manager
+Comment=Manage virtual machines
