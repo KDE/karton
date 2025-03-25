@@ -18,7 +18,7 @@ class VMModel : public QAbstractListModel
     Q_OBJECT
 public:
     enum Roles {
-        DomainRole
+        DomainRole = Qt::UserRole
     };
     VMModel(Karton *parent = nullptr);
     ~VMModel();
