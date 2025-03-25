@@ -273,7 +273,7 @@ bool Karton::createDomain(const QString &name, const QString &osVariant, const f
 bool Karton::runCommand(const QString &command)
 {
     qCDebug(KARTON_DEBUG) << "Running Command:" << command;
-    QProcess* process = new QProcess(this);
+    auto process = new QProcess(this);
     connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this, process](int exitCode, QProcess::ExitStatus) {
         QString output = QString::fromLocal8Bit(process->readAllStandardOutput());
         Q_EMIT commandFinished(exitCode, output);

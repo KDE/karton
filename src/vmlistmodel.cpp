@@ -22,15 +22,16 @@ VMModel::~VMModel()
 }
 QVariant VMModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_datas.size())
-        return QVariant();
+    if (!index.isValid() || index.row() >= m_datas.size()) {
+        return {};
+    }
 
     const Domain *domain = m_datas[index.row()];
 
     if (role == DomainRole) {
         return QVariant::fromValue(domain);
     }
-    return QVariant();
+    return {};
 }
 QHash<int, QByteArray> VMModel::roleNames() const
 {

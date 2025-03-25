@@ -35,9 +35,9 @@ int main(int argc, char *argv[])
 
     qCDebug(KARTON_DEBUG) << "Hello! Starting application...";
     Karton karton;
-    VMModel *model = new VMModel(&karton);
+    auto model = new VMModel(&karton);
     model->refreshAllDomains();
-    
+
     engine.rootContext()->setContextProperty(QStringLiteral("Karton"), &karton);
     engine.rootContext()->setContextProperty(QStringLiteral("VMModel"), model);
 
