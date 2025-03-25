@@ -29,7 +29,7 @@ Q_SIGNALS:
 
 public:
     Domain(QObject *parent = nullptr);
-    ~Domain();
+    ~Domain() override;
     Domain(virDomainPtr domainPtr,
            const QString &name,
            const QString &uuid,
