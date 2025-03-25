@@ -80,6 +80,10 @@ void Domain::setAutostart(bool autostart) {
 
 QString Domain::uuidString(virDomainPtr domainPtr)
 {
+    if (!domainPtr) {
+        return {};
+    }
+
     std::array<char, VIR_UUID_STRING_BUFLEN> uuid = {};
     if (virDomainGetUUIDString(domainPtr, uuid.data()) == -1) {
         qCWarning(KARTON_DEBUG) << "Failed to get UUID string for" << domainPtr;
