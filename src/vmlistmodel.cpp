@@ -7,8 +7,8 @@
 
 VMModel::VMModel(Karton *parent)
     : QAbstractListModel(parent)
+    , m_karton(parent)
 {
-    m_karton = parent;
     connect(m_karton, &Karton::domainsChanged, this, &VMModel::onDomainsChanged);
 }
 int VMModel::rowCount(const QModelIndex &parent) const
