@@ -4,6 +4,8 @@
 #include "domain.h"
 #include <QString>
 
+#include "karton_debug.h"
+
 Domain::Domain(QObject *parent)
     : QObject(parent)
     , m_domainPtr(nullptr)
@@ -79,6 +81,9 @@ void Domain::setAutostart(bool autostart) {
 QString Domain::uuidString(virDomainPtr domainPtr)
 {
     std::array<char, VIR_UUID_STRING_BUFLEN> uuid = {};
-    virDomainGetUUIDString(domainPtr, uuid.data());
+    if (virDomainGetUUIDString(domainPtr, uuid.data()) == -1) {
+        qCWarning(KARTON_DEBUG) << "Failed to get UUID string for" << domainPtr;
+        return {};
+    }
     return QString::fromUtf8(uuid.data());
 }
