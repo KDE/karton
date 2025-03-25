@@ -75,9 +75,7 @@ bool Karton::init()
 // searchDomain(domain) returns index position of the domain in m_domains
 int Karton::searchDomain(const virDomainPtr domainPtr)
 {
-    char uuid[VIR_UUID_STRING_BUFLEN];
-    virDomainGetUUIDString(domainPtr, uuid);
-    QString searchUuid = QString::fromUtf8(uuid);
+    QString searchUuid = Domain::uuidString(domainPtr);
 
     for (int i = 0; i < m_domains.size(); i++) {
         if (searchUuid == m_domains[i]->uuid()) {
@@ -154,8 +152,6 @@ void Karton::refreshDomainList()
         // getting all information from libvirt
         virDomainPtr domainPtr = domains[i];
         const char *name = virDomainGetName(domains[i]);
-        char uuid[VIR_UUID_STRING_BUFLEN];
-        virDomainGetUUIDString(domains[i], uuid);
         bool isActive = virDomainIsActive(domains[i]);
 
         virDomainInfo domInfo;
@@ -173,7 +169,7 @@ void Karton::refreshDomainList()
 
         Domain *domain = new Domain(domainPtr,
                                     QString::fromUtf8(name),
-                                    QString::fromUtf8(uuid),
+                                    Domain::uuidString(domainPtr),
                                     isActive,
                                     state,
                                     maxRam,

@@ -54,9 +54,7 @@ void VMModel::refreshAllDomains() {
 
 void VMModel::updateDomains(const virDomainPtr domainPtr)
 {
-    char uuid[VIR_UUID_STRING_BUFLEN] = {0};
-    virDomainGetUUIDString(domainPtr, uuid);
-    QString domainUuid = QString::fromUtf8(uuid);
+    QString domainUuid = Domain::uuidString(domainPtr);
     qCDebug(KARTON_DEBUG) << "Domain UUID:" << domainUuid;
     
     bool domainExists = false;

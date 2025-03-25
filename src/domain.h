@@ -88,6 +88,7 @@ public:
     void setState(const QString &state);
     void setRamUsage(int ramUsage);
     void setAutostart(bool autostart);
+    [[nodiscard]] static QString uuidString(virDomainPtr domainPtr);
 
 private:
     virDomainPtr m_domainPtr;
