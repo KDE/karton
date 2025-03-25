@@ -78,7 +78,7 @@ void Domain::setAutostart(bool autostart) {
 
 QString Domain::uuidString(virDomainPtr domainPtr)
 {
-    char uuid[VIR_UUID_STRING_BUFLEN] = {0};
-    virDomainGetUUIDString(domainPtr, uuid);
-    return QString::fromUtf8(uuid);
+    std::array<char, VIR_UUID_STRING_BUFLEN> uuid = {};
+    virDomainGetUUIDString(domainPtr, uuid.data());
+    return QString::fromUtf8(uuid.data());
 }
