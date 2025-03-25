@@ -5,7 +5,7 @@
 [Desktop Entry]
 Categories=System;Tools;
 Comment=Manage virtual machines
-Exec=/usr/bin/karton
+Exec=karton
 Name=Karton
 Icon=karton_logo
 GenericName=Virtual Machine Manager
