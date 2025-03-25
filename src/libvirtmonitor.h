@@ -18,8 +18,8 @@ private:
 
 public:
     LibvirtMonitor(QObject *parent = nullptr, virConnectPtr conn = nullptr);
-
     ~LibvirtMonitor();
+    Q_DISABLE_COPY_MOVE(LibvirtMonitor)
 
 Q_SIGNALS:
     void domainStateChanged(const virDomainPtr domainPtr, int event, int detail);

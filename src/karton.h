@@ -16,6 +16,7 @@ class Karton : public QObject
 public:
     explicit Karton(QObject *parent = nullptr);
     ~Karton();
+    Q_DISABLE_COPY_MOVE(Karton)
     QVector<Domain *> domains();
     void refreshDomain(const virDomainPtr domainPtr);
     int searchDomain(virDomainPtr domainPtr);

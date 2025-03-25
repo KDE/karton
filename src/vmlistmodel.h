@@ -22,6 +22,7 @@ public:
     };
     VMModel(Karton *parent = nullptr);
     ~VMModel() override;
+    Q_DISABLE_COPY_MOVE(VMModel)
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;

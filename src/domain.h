@@ -41,6 +41,7 @@ public:
            const QString &diskPath,
            bool autostart,
            QObject *parent = nullptr);
+    Q_DISABLE_COPY_MOVE(Domain);
 
     // getters
     [[nodiscard]] virDomainPtr domainPtr() const
