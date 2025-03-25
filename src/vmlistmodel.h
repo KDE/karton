@@ -21,7 +21,7 @@ public:
         DomainRole = Qt::UserRole
     };
     VMModel(Karton *parent = nullptr);
-    ~VMModel();
+    ~VMModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;
