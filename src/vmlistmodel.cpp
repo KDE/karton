@@ -40,11 +40,12 @@ QHash<int, QByteArray> VMModel::roleNames() const
 
 void VMModel::onDomainsChanged(const virDomainPtr domainPtr, int event, int detail)
 {
-    if(domainPtr) {
+    if (domainPtr) {
         updateDomains(domainPtr);
     }
 }
-void VMModel::refreshAllDomains() {
+void VMModel::refreshAllDomains()
+{
     qCDebug(KARTON_DEBUG) << "Refreshing all domains.";
     beginResetModel();
     m_datas.clear();
@@ -57,12 +58,12 @@ void VMModel::updateDomains(const virDomainPtr domainPtr)
 {
     QString domainUuid = Domain::uuidString(domainPtr);
     qCDebug(KARTON_DEBUG) << "Domain UUID:" << domainUuid;
-    
+
     bool domainExists = false;
     virDomainInfo info;
     int ret = virDomainGetInfo(domainPtr, &info);
     domainExists = (ret == 0);
-    
+
     if (!domainExists) {
         refreshAllDomains();
         return;
@@ -75,11 +76,11 @@ void VMModel::updateDomains(const virDomainPtr domainPtr)
             break;
         }
     }
-    
+
     if (modelIndex >= 0) {
         qCDebug(KARTON_DEBUG) << "Found matching domain in model at index" << modelIndex;
         m_karton->refreshDomain(domainPtr);
-        
+
         QModelIndex qModelIndex = createIndex(modelIndex, 0);
         Q_EMIT dataChanged(qModelIndex, qModelIndex);
     } else {

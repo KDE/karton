@@ -7,7 +7,6 @@
 #include <QString>
 #include <libvirt/libvirt.h>
 
-
 class LibvirtMonitor : public QObject
 {
     Q_OBJECT

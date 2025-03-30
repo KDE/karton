@@ -5,8 +5,8 @@
 #include "domain.h"
 #include "libvirtmonitor.h"
 
-#include <KLocalizedString>
 #include "karton_debug.h"
+#include <KLocalizedString>
 #include <QObject>
 #include <iostream>
 #include <libvirt/libvirt.h>
@@ -16,7 +16,6 @@ Karton::Karton(QObject *parent)
     , m_conn(nullptr)
     , m_monitor(nullptr)
 {
-
     init();
 }
 
@@ -86,7 +85,8 @@ int Karton::searchDomain(const virDomainPtr domainPtr)
 }
 
 // get string from state
-static QString domainStateString(unsigned int state) {
+static QString domainStateString(unsigned int state)
+{
     switch (state) {
     case VIR_DOMAIN_NOSTATE:
         return i18n("no state");
@@ -195,8 +195,8 @@ bool Karton::startDomain(const Domain *domain)
 
     if (result < 0) {
         QString errorMsg = QStringLiteral("Failed to start domain: %1").arg(domain->name());
-            qCWarning(KARTON_DEBUG) << errorMsg;
-            Q_EMIT errorOccurred(errorMsg);
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
         return false;
     }
     qCInfo(KARTON_DEBUG) << "Successfully started domain:" << domain->name();
@@ -279,6 +279,6 @@ bool Karton::runCommand(const QString &command)
         Q_EMIT commandFinished(exitCode, output);
     });
     process->startCommand(command);
-    
+
     return process->waitForStarted();
 }

@@ -26,5 +26,4 @@ void LibvirtEventLoop::run()
 
     timer->start();
     Q_EMIT result(true);
-
 }

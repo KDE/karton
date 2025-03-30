@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
 #include "libvirtmonitor.h"
-#include "libvirteventloop.h"
 #include "karton_debug.h"
+#include "libvirteventloop.h"
 
 LibvirtMonitor::LibvirtMonitor(QObject *parent, virConnectPtr conn)
     : QObject(parent)

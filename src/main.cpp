@@ -2,20 +2,20 @@
 // SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
 // SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
-#include <QApplication>
-#include <QQmlApplicationEngine>
-#include <QtQml>
-#include <QIcon>
-#include <QUrl>
-#include <QQuickStyle>
+#include "karton.h"
+#include "karton_debug.h"
+#include "vmlistmodel.h"
+#include <KIconTheme>
 #include <KLocalizedContext>
 #include <KLocalizedString>
-#include <KIconTheme>
-#include "karton.h"
-#include "vmlistmodel.h"
-#include <libvirt/libvirt.h>
+#include <QApplication>
+#include <QIcon>
+#include <QQmlApplicationEngine>
+#include <QQuickStyle>
+#include <QUrl>
+#include <QtQml>
 #include <iostream>
-#include "karton_debug.h"
+#include <libvirt/libvirt.h>
 
 int main(int argc, char *argv[])
 {
@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty(QStringLiteral("Karton"), &karton);
     engine.rootContext()->setContextProperty(QStringLiteral("VMModel"), model);
-
 
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.loadFromModule("org.kde.karton", "Main");

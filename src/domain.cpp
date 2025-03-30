@@ -50,28 +50,32 @@ Domain::~Domain()
     virDomainFree(m_domainPtr);
 }
 
-void Domain::setActive(bool active) {
+void Domain::setActive(bool active)
+{
     if (m_isActive != active) {
         m_isActive = active;
         Q_EMIT isActiveChanged(active);
     }
 }
 
-void Domain::setState(const QString &state) {
+void Domain::setState(const QString &state)
+{
     if (m_state != state) {
         m_state = state;
         Q_EMIT stateChanged(state);
     }
 }
 
-void Domain::setRamUsage(int ramUsage) {
+void Domain::setRamUsage(int ramUsage)
+{
     if (m_ramUsage != ramUsage) {
         m_ramUsage = ramUsage;
         Q_EMIT ramUsageChanged(ramUsage);
     }
 }
 
-void Domain::setAutostart(bool autostart) {
+void Domain::setAutostart(bool autostart)
+{
     if (m_autostart != autostart) {
         m_autostart = autostart;
         Q_EMIT autostartChanged(autostart);
