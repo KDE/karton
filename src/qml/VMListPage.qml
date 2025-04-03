@@ -54,7 +54,7 @@ Kirigami.ScrollablePage {
                             cpu: cpuSpinBox.value
                         };
                         createDomainWrapper(domainConfig);
-                        showPassiveNotification("Created VM: " + nameField.text);
+                        showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Created VM: %1", nameField.text));
                         addDomainDialog.close();
                     }
                 }
@@ -65,7 +65,7 @@ Kirigami.ScrollablePage {
         onAccepted: {
             console.log("VM Name:", nameField.text);
             console.log("VM Type:", vmTypeComboBox.currentText);
-            showPassiveNotification("Created VM: " + nameField.text);
+            showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Created VM: %1", nameField.text));
         }
             
 
@@ -242,7 +242,7 @@ Kirigami.ScrollablePage {
                             icon.name: "media-playback-start"
                             onClicked: {
                                 Karton.startDomain(domain)
-                                showPassiveNotification("Starting VM: " + domain.name + "!");
+                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Starting VM: %1!", domain.name));
                             }
                         }
                         Controls.Button {
@@ -252,7 +252,7 @@ Kirigami.ScrollablePage {
                             icon.name: "system-shutdown"
                             onClicked: {
                                 Karton.stopDomain(domain)
-                                showPassiveNotification("Stopping VM: " + domain.name + "!");
+                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Stopping VM: %1!", domain.name));
                             }
                         }
                         Controls.Button {
@@ -262,7 +262,7 @@ Kirigami.ScrollablePage {
                             // icon.name: "process-stop"
                             onClicked: {
                                 Karton.forceStopDomain(domain)
-                                showPassiveNotification("Force-stopping VM: " + domain.name + "!");
+                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Force-stopping VM: %1!", domain.name));
                             }
                         }
                         Controls.Button {
@@ -272,7 +272,7 @@ Kirigami.ScrollablePage {
                             icon.name: "computer-laptop-symbolic"
                             onClicked: {
                                 Karton.viewDomain(domain)
-                                showPassiveNotification("Opening in virt-viewer: " + domain.name + "!");
+                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Opening in virt-viewer: %1!", domain.name));
                             }
                         }
                         Controls.Button {
@@ -281,14 +281,19 @@ Kirigami.ScrollablePage {
                             text: i18nc("verb, delete a VM", "Delete")
                             icon.name: "delete"
                             onClicked: {
-                                Karton.undefineDomain(domain)
-                                showPassiveNotification("Deleting " + domain.name + "!");
+                                if (domain.state === "running") {
+                                    showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Error: %1 is still running!", domain.name));
+                                    return;
+                                }
+                                deleteConfirmationDialog.domain = domain;
+                                deleteConfirmationDialog.open();
                             }
                         }
                     }
                 }
             }
         }
+
         Kirigami.PlaceholderMessage {
             anchors.centerIn: parent
             width: parent.width - (Kirigami.Units.largeSpacing * 4)
@@ -301,5 +306,65 @@ Kirigami.ScrollablePage {
         }
     }
 
-    
+    Kirigami.Dialog {
+        id: deleteConfirmationDialog
+        title: i18nc("Confirm deleting %1 (virtual machine name)", "Delete '%1'?", deleteConfirmationDialog.domain.name)
+        
+        padding: Kirigami.Units.largeSpacing
+        preferredWidth: root.width - Kirigami.Units.gridUnit * 30
+        preferredHeight: root.height - Kirigami.Units.gridUnit * 30
+        
+        showCloseButton: false
+        standardButtons: Kirigami.Dialog.NoButton
+        flatFooterButtons: false
+
+        property var domain: null
+
+        Controls.Label {
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            text: i18nc("%1 is the virtual machine name",
+`You are about to remove the virtual machine, '%1'. 
+Would you like to remove the disk image as well? 
+This action cannot be undone.`, 
+            deleteConfirmationDialog.domain.name)
+        }
+
+        customFooterActions: [
+            Kirigami.Action {
+                text: i18nc("verb, close confirmation dialog", "Cancel")
+                icon.name: "dialog-cancel"
+                onTriggered: {
+                    deleteConfirmationDialog.domain = null;
+                    deleteConfirmationDialog.close();
+                }
+            },
+            Kirigami.Action {
+                text: i18nc("action, delete VM but keep disk image", "Keep File")
+                icon.name: "edit-delete-remove"
+                
+                onTriggered: {
+                    if (deleteConfirmationDialog.domain) {
+                        Karton.deleteDomain(deleteConfirmationDialog.domain, false);
+                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Undefining %1!", deleteConfirmationDialog.domain.name));
+                        deleteConfirmationDialog.domain = null;
+                        deleteConfirmationDialog.close();
+                    }
+                }
+            },
+            Kirigami.Action {
+                text: i18nc("action, delete VM and disk image", "Delete Disk")
+                icon.name: "delete"
+                
+                onTriggered: {
+                    if (deleteConfirmationDialog.domain) {
+                        Karton.deleteDomain(deleteConfirmationDialog.domain, true);
+                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Undefining %1!", deleteConfirmationDialog.domain.name));
+                        deleteConfirmationDialog.domain = null;
+                        deleteConfirmationDialog.close();
+                    }
+                }
+            }
+        ]
+    }
 }
