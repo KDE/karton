@@ -46,7 +46,7 @@ find_package(KF6 REQUIRED COMPONENTS
     IconThemes
 )
 install(FILES
-    img/karton_logo.png
+    img/karton_logo.svg
     DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps
 )
 install(FILES

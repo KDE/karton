@@ -4,8 +4,8 @@ SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
 SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 -->
 
-# Karton <img src="img/karton_logo.png" width="40"/>
-A libvirt-based Virtual Machine Manager for KDE.
+# Karton <img src="img/karton_logo.svg" width="40"/>
+A Libvirt-based Virtual Machine Manager for KDE.
 
 ## WARNING
 This project is still in early development and will likely break existing virtual machines.

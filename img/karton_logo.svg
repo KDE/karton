@@ -1,0 +1,37 @@
+<svg id="svg18" version="1.1" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <defs id="defs10">
+        <linearGradient id="a" x1="24" x2="15" y1="41.014614" y2="16.005219" gradientTransform="matrix(1 0 0 .958 0 .667)" gradientUnits="userSpaceOnUse">
+            <stop id="stop1" stop-color="#7e5025" offset="0"/>
+            <stop id="stop2" stop-color="#e89c5c" offset="1"/>
+        </linearGradient>
+        <linearGradient id="e" x1="35" x2="35" y1="15" y2="35" gradientUnits="userSpaceOnUse">
+            <stop id="stop3" offset="0"/>
+            <stop id="stop4" stop-opacity="0" offset="1"/>
+        </linearGradient>
+        <linearGradient id="c" x1="15" x2="40" y2="25" gradientUnits="userSpaceOnUse">
+            <stop id="stop9" stop-color="#d69856" offset="0"/>
+            <stop id="stop10" stop-color="#a06c36" offset="1"/>
+        </linearGradient>
+    </defs>
+    <path id="path10" x="6" y="16" width="36" height="24" d="m6 16h36v23a1 1 135 01-1 1h-34a1 1 45 01-1-1z" fill="url(#a)" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" style="paint-order:markers fill stroke"/>
+    <path id="path12" d="m42 38a1 .958 0 01-1 .959h-34a1 .958 0 01-1-.959v.959a1 1 0 001 1h34a1 1 0 001-1z" opacity=".3" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" style="paint-order:markers fill stroke"/>
+    <path id="path13" d="m5 8h38a1 1 45 011 1v7h-40v-7a1 1 135 011-1z" fill="url(#c)" style="paint-order:markers fill stroke"/>
+    <path id="path14" d="m5 8a1 1 0 00-1 1v.875a1 .875 0 011-.875h38a1 .875 0 011 .875v-.875a1 1 0 00-1-1z" fill="#fff" opacity=".3" stroke-dashoffset=".5" style="paint-order:markers fill stroke"/>
+    <g id="g3" stroke-dashoffset=".5">
+        <rect id="rect20" x="26" y="32" width="14" height="6" rx="1" ry="1" fill="#202020" opacity=".7" stroke-width="2" style="paint-order:markers fill stroke"/>
+        <rect id="rect21" x="27" y="33" width="12" height="2" fill="#ababab" opacity=".3" stroke-width="1.99999" style="paint-order:markers fill stroke"/>
+        <g id="g1" stroke-width="2">
+            <rect id="rect22" x="8" y="26" width="16.000002" height="12.000002" rx="1" ry="1" fill="#202020" opacity=".7" style="paint-order:markers fill stroke"/>
+            <path id="path25" d="m13 38v-3h-5v2c0 0.553338 0.4449665 0.998937 0.9980469 1z" fill="#ababab" opacity=".3" style="paint-order:markers fill stroke"/>
+            <path id="path26" d="m24 35h-5v3h4.002c0.552372-0.0011 0.996938-0.445628 0.998-0.998047z" fill="#ababab" opacity=".3" style="paint-order:markers fill stroke"/>
+            <rect id="rect3" x="26" y="24" width="14" height="6" rx="1" ry="1" fill="#202020" opacity=".7" style="paint-order:markers fill stroke"/>
+        </g>
+        <rect id="rect4" x="27" y="25" width="12" height="2" fill="#ababab" opacity=".3" stroke-width="1.99999" style="paint-order:markers fill stroke"/>
+        <g id="g2" opacity=".6" stroke-width="2">
+            <path id="path6" d="m9 26c-0.554 0-1 0.446-1 1v0.998047c7.523e-4 -0.55335 0.4464678-0.998047 1-0.998047h14c0.554 0 1 0.446 1 1v-1c0-0.554-0.446-1-1-1z" opacity=".3" style="paint-order:markers fill stroke"/>
+            <path id="path8" d="m27 24c-0.554 0-1 0.446-1 1v1c0-0.554 0.446-1 1-1h12c0.554 0 1 0.446 1 1v-1c0-0.554-0.446-1-1-1z" opacity=".3" style="paint-order:markers fill stroke"/>
+            <path id="path15" d="m27 32c-0.554 0-1 0.446-1 1v1c0-0.554 0.446-1 1-1h12c0.554 0 1 0.446 1 1v-1c0-0.554-0.446-1-1-1z" opacity=".3" style="paint-order:markers fill stroke"/>
+        </g>
+    </g>
+    <path id="path11" d="m6.0000001 16h36v24h-13z" fill="url(#e)" opacity=".249" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" style="paint-order:markers fill stroke"/>
+</svg>
