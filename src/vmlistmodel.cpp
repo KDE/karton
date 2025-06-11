@@ -2,14 +2,21 @@
 // SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
 #include "vmlistmodel.h"
+
 #include "karton.h"
 #include "karton_debug.h"
 
-VMModel::VMModel(Karton *parent)
+VMModel::VMModel(QObject *parent)
     : QAbstractListModel(parent)
-    , m_karton(parent)
+    , m_karton(Karton::self())
 {
-    connect(m_karton, &Karton::domainsChanged, this, &VMModel::onDomainsChanged);
+    // qCDebug(KARTON_DEBUG) << "vmmodellist: Karton instance:" << m_karton;
+    if (m_karton) {
+        connect(m_karton, &Karton::domainsChanged, this, &VMModel::onDomainsChanged);
+        refreshAllDomains();
+    } else {
+        qCCritical(KARTON_DEBUG) << "vmmodellist: karton is null!";
+    }
 }
 int VMModel::rowCount(const QModelIndex &parent) const
 {
@@ -20,6 +27,18 @@ VMModel::~VMModel()
 {
     m_datas.clear();
 }
+
+VMModel *VMModel::self()
+{
+    static VMModel *v = new VMModel(Karton::self());
+    return v;
+}
+
+VMModel *VMModel::create(QQmlEngine *qmlEngine, QJSEngine *)
+{
+    return VMModel::self();
+}
+
 QVariant VMModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= m_datas.size()) {
@@ -46,7 +65,7 @@ void VMModel::onDomainsChanged(const virDomainPtr domainPtr, int event, int deta
 }
 void VMModel::refreshAllDomains()
 {
-    qCDebug(KARTON_DEBUG) << "Refreshing all domains.";
+    qCInfo(KARTON_DEBUG) << "vmlistmodel: Refreshing all domains.";
     beginResetModel();
     m_datas.clear();
     m_karton->refreshDomainList();
@@ -71,7 +90,7 @@ void VMModel::updateDomains(const virDomainPtr domainPtr)
 
     int modelIndex = -1;
     for (int i = 0; i < m_datas.size(); ++i) {
-        if (m_datas[i]->uuid() == domainUuid) {
+        if (m_datas[i]->config()->uuid() == domainUuid) {
             modelIndex = i;
             break;
         }

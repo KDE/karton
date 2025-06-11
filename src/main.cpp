@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
 // SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
-#include "karton.h"
-#include "karton_debug.h"
-#include "vmlistmodel.h"
+#include <libvirt/libvirt.h>
+
 #include <KIconTheme>
 #include <KLocalizedContext>
 #include <KLocalizedString>
@@ -15,7 +14,12 @@
 #include <QUrl>
 #include <QtQml>
 #include <iostream>
-#include <libvirt/libvirt.h>
+
+#include "domainconfig.h"
+#include "karton.h"
+#include "karton_debug.h"
+#include "osinfoconfig.h"
+#include "vmlistmodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -27,19 +31,14 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName(QStringLiteral("Karton"));
     QApplication::setDesktopFileName(QStringLiteral("org.kde.karton"));
     QGuiApplication::setWindowIcon(QIcon::fromTheme(QStringLiteral("org.kde.karton")));
+
     if (qEnvironmentVariableIsEmpty("QT_QUICK_CONTROLS_STYLE")) {
         QQuickStyle::setStyle(QStringLiteral("org.kde.desktop"));
     }
 
     QQmlApplicationEngine engine;
 
-    qCDebug(KARTON_DEBUG) << "Hello! Starting application...";
-    Karton karton;
-    auto model = new VMModel(&karton);
-    model->refreshAllDomains();
-
-    engine.rootContext()->setContextProperty(QStringLiteral("Karton"), &karton);
-    engine.rootContext()->setContextProperty(QStringLiteral("VMModel"), model);
+    qCInfo(KARTON_DEBUG) << "Hello! Starting Karton...";
 
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
     engine.loadFromModule("org.kde.karton", "Main");

@@ -8,7 +8,7 @@ project(karton)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(ECM 6.0.0 REQUIRED NO_MODULE)
-# set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
 list(APPEND CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 include(KDEInstallDirs)
@@ -28,9 +28,12 @@ find_package(Qt6 REQUIRED COMPONENTS
     Gui
     QuickControls2
     Widgets
+    Xml
 )
 
 find_package(Libvirt REQUIRED)
+find_package(Libosinfo REQUIRED)
+find_package(Glib REQUIRED)
 
 find_package(KF6 REQUIRED COMPONENTS
     Kirigami
@@ -44,10 +47,9 @@ install(FILES
     DESTINATION /usr/share/icons/hicolor/scalable/apps
 )
 install(FILES
-	org.kde.karton.desktop
-	DESTINATION /usr/share/applications
+    org.kde.karton.desktop
+    DESTINATION /usr/share/applications
 )
-
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 

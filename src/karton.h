@@ -2,35 +2,51 @@
 // SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 #pragma once
 
-#include "domain.h"
-#include <QObject>
-#include <QProcess>
 #include <libvirt/libvirt.h>
 
+#include <QJSEngine>
+#include <QObject>
+#include <QProcess>
+#include <QQmlEngine>
+#include <QXmlStreamReader>
+
+#include "domain.h"
+#include "domainconfig.h"
+#include <qqmlintegration.h>
+
 class LibvirtMonitor;
+
+struct _virDomain; // need this for compile issues
+Q_DECLARE_OPAQUE_POINTER(_virDomain *)
+Q_DECLARE_METATYPE(_virDomain *)
 
 class Karton : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
 public:
     explicit Karton(QObject *parent = nullptr);
     ~Karton();
     Q_DISABLE_COPY_MOVE(Karton)
+    static Karton *create(QQmlEngine *qmlEngine, QJSEngine *);
+    static Karton *self();
+
     QVector<Domain *> domains();
     void refreshDomain(const virDomainPtr domainPtr);
     int searchDomain(virDomainPtr domainPtr);
     void refreshDomainList();
+    QString getVirtualDiskPath(const QString &domainName);
+    QString getXmlConfigPath(const QString &domainName);
 
 public Q_SLOTS:
     Q_INVOKABLE bool runCommand(const QString &command);
-    // bool startDomain(const virDomainPtr domain);
     Q_INVOKABLE bool startDomain(const Domain *domain);
     Q_INVOKABLE bool stopDomain(const Domain *domain);
     Q_INVOKABLE bool viewDomain(const Domain *domain);
     Q_INVOKABLE bool forceStopDomain(const Domain *domain);
-    Q_INVOKABLE bool
-    createDomain(const QString &name, const QString &osVariant, const float memoryGB, const float storageGB, const QString &diskPath, const int cpus);
+    Q_INVOKABLE bool createDomain(const QVariantMap &config);
     Q_INVOKABLE bool deleteDomain(const Domain *domain, const bool deleteDisk);
 
 Q_SIGNALS:

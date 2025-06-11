@@ -3,26 +3,33 @@
 
 #pragma once
 
-#include "domain.h"
-#include "karton.h"
+#include <libvirt/libvirt.h>
+
 #include <QAbstractListModel>
 #include <QByteArray>
 #include <QHash>
 #include <QModelIndex>
 #include <QObject>
 #include <QVariant>
-#include <libvirt/libvirt.h>
+
+#include "domain.h"
+#include "karton.h"
 
 class VMModel : public QAbstractListModel
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
+
 public:
     enum Roles {
         DomainRole = Qt::UserRole
     };
-    VMModel(Karton *parent = nullptr);
+    VMModel(QObject *parent = nullptr);
     ~VMModel() override;
     Q_DISABLE_COPY_MOVE(VMModel)
+    static VMModel *create(QQmlEngine *qmlEngine, QJSEngine *);
+    static VMModel *self();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QHash<int, QByteArray> roleNames() const override;

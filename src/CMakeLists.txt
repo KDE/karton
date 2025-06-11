@@ -5,8 +5,9 @@
 add_executable(karton)
 
 ecm_add_qml_module(karton
-    URI
-    org.kde.karton
+    GENERATE_PLUGIN_SOURCE
+    OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/src/org/kde/karton
+    URI org.kde.karton
 )
 
 target_sources(karton
@@ -15,8 +16,12 @@ target_sources(karton
     karton.cpp
     vmlistmodel.cpp
     domain.cpp
+    domainconfig.cpp
     libvirtmonitor.cpp
     libvirteventloop.cpp
+    domaininstaller.cpp
+    osinfoconfig.cpp
+    domainxmlreader.cpp
 )
 
 ecm_target_qml_sources(karton
@@ -47,10 +52,13 @@ target_link_libraries(karton
     Qt6::Gui
     Qt6::QuickControls2
     Qt6::Widgets
+    Qt6::Xml
     KF6::I18n
     KF6::CoreAddons
     KF6::IconThemes
     Libvirt::Libvirt
+    Libosinfo::Libosinfo
+    Glib::Glib
 )
 
 install(TARGETS karton ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
