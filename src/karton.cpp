@@ -337,8 +337,8 @@ bool Karton::createDomain(const QVariantMap &config)
 
 QString Karton::getXmlConfigPath(const QString &domainName)
 {
-    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
-    return QStringLiteral("%1/libvirt/kde-karton/config/%2_config.xml").arg(dataDir, domainName);
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+    return QStringLiteral("%1/libvirt/qemu/%2.xml").arg(configDir, domainName);
 }
 
 QString Karton::getVirtualDiskPath(const QString &domainName)

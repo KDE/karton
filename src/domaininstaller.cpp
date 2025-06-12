@@ -24,23 +24,9 @@
 virDomainPtr DomainInstaller::setupDomain(virConnectPtr conn, const DomainConfig *config)
 {
     QString xmlString = generateXML(conn, config);
-    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
-    QString path = QStringLiteral("%1/libvirt/kde-karton").arg(dataDir);
-    QDir dir(path);
-    if (!dir.mkpath(QStringLiteral("config"))) {
-        qCCritical(KARTON_DEBUG) << "Already Exists / Failed: " << path;
-    }
-    QFile domainXML(QStringLiteral("%1/config/%2_config.xml").arg(path).arg(config->name()));
-    if (!domainXML.open(QFile::WriteOnly | QFile::Text)) {
-        qCCritical(KARTON_DEBUG) << "qfile opened in another instance or something??";
-        return NULL;
-    }
-    QTextStream xmlContent(&domainXML);
-    xmlContent << xmlString;
-    domainXML.close();
-
     virDomainPtr dom = virDomainDefineXML(conn, xmlString.toStdString().c_str());
-    // create?
+    // this function generates a new XML file: ~/.config/libvirt/qemu/[name].xml
+
     return dom;
 }
 
