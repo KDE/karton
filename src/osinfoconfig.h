@@ -7,6 +7,7 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QString>
+#include <QStringList>
 
 extern "C" // due to undefined references to libosinfo content
 {
@@ -41,6 +42,7 @@ public:
     QString getOsIdFromShortId(const QString &short_id);
     Q_INVOKABLE QString getShortIdFromId(const QString &id);
     Q_INVOKABLE QString getOsIdFromDisk(const QString &isoDiskPath);
+    Q_INVOKABLE QStringList getOsVariants();
     QString getOsArchitecture(const QString &osId);
 
 private:

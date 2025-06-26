@@ -34,7 +34,7 @@ Kirigami.Dialog {
                 }
                 const domainConfig = {
                     name: nameField.text.trim(),
-                    shortOsId: osField.text.trim(),
+                    shortOsId: osField.editText.trim(),
                     isoDiskPath: diskImageField.text,
                     memoryGB: memorySpinBox.value,
                     storageGB: storageSpinBox.value,
@@ -89,11 +89,10 @@ Kirigami.Dialog {
                     diskImageField.text = fileDialog.selectedFile.toString().replace("file://", "");
                     let shortOsId = getShortOsId(diskImageField.text);
                     if (shortOsId === "") {
-                        osField.placeholderText = i18n("Could not identify the OS. Please enter an OS Variant.");
-                        osField.text = "";
+                        osTextField.placeholderText = i18n("Could not identify the OS. Please select or enter an OS Variant.");
+                        osField.editText = "";
                     } else {
-                        osField.text = shortOsId;
-                        osField.placeholderText = i18n( "Enter an OS Variant");
+                        osField.editText = shortOsId;
                     }
                 }
             }
@@ -120,11 +119,34 @@ Kirigami.Dialog {
                     }
                 }
             }
-            FormCard.FormTextFieldDelegate {
-                id: osField
-                label: i18nc("@label:textbox", "OS Variant:")
-                placeholderText: i18n( "Enter an OS Variant")
-                Layout.fillWidth: true
+            FormCard.AbstractFormDelegate {
+                background: null // removes hover selection
+                hoverEnabled: false
+                contentItem: ColumnLayout {
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Controls.Label {
+                        text: i18n("OS Variant:")
+                    }
+
+                    Controls.ComboBox {
+                        id: osField
+                        Layout.fillWidth: true
+                        model: OsinfoConfig.getOsVariants()
+                        editable: true
+                        currentIndex: -1 // start empty
+
+                        contentItem: Controls.TextField {
+                            id: osTextField
+                            text: osField.editText
+                            placeholderText: i18n("Select or enter an OS variant")
+                            background: Rectangle { // removes blue selection also
+                                color: "transparent"
+                            }
+                        }
+                        popup.height: Kirigami.Units.gridUnit * 10
+                    }
+                }
             }
         }
 
