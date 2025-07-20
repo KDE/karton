@@ -173,9 +173,11 @@ Kirigami.ScrollablePage {
         
     }
 
-    // VMModel {
-    //     id: vmModel
-    // }
+    Component {
+        id: vmViewerWindowComponent
+        VMViewerWindow {}
+    }
+
     Kirigami.CardsListView {
         id: view
         model: VMModel
@@ -280,8 +282,14 @@ Kirigami.ScrollablePage {
                             text: i18nc("verb, open viewer for VM", "View VM")
                             icon.name: "computer-laptop-symbolic"
                             onClicked: {
-                                Karton.viewDomain(domain)
-                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Opening in virt-viewer: %1!", domain.config.name));
+                                let component = Qt.createComponent("VMViewerWindow.qml")
+                                if (component.status === Component.Ready) {
+                                    let window = component.createObject(null, {domain: domain})
+                                    if (window) {
+                                        window.show()
+                                        showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Opening viewer for: %1", domain.config.name))
+                                    }
+                                }
                             }
                         }
                         Controls.Button {

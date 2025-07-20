@@ -15,6 +15,7 @@
 #include "domain.h"
 #include "domainconfig.h"
 #include "domaininstaller.h"
+#include "domainviewer.h"
 #include "domainxmlreader.h"
 #include "karton_debug.h"
 #include "libvirtmonitor.h"
@@ -23,7 +24,11 @@ Karton::Karton(QObject *parent)
     : QObject(parent)
     , m_conn(nullptr)
     , m_monitor(nullptr)
+    , m_domainViewer(nullptr)
+    , m_currentDomain(nullptr)
+    , m_commandRunner(new CommandRunner(this))
 {
+    connect(m_commandRunner, &CommandRunner::commandFinished, this, &Karton::commandFinished);
     init();
 }
 
@@ -33,6 +38,7 @@ Karton::~Karton()
         virConnectClose(m_conn);
         m_conn = nullptr;
     }
+    cleanupDomainViewer();
 }
 
 Karton *Karton::self()
@@ -75,6 +81,20 @@ bool Karton::init()
     refreshDomainList();
 
     return true;
+}
+
+void Karton::setCurrentDomain(Domain *domain)
+{
+    if (m_currentDomain != domain) {
+        m_currentDomain = domain;
+        Q_EMIT currentDomainChanged();
+    }
+}
+Domain *Karton::currentDomain()
+{
+    if (!m_currentDomain)
+        qWarning() << "Warning: currentDomain is null!";
+    return m_currentDomain;
 }
 
 // searchDomain(domain) returns index position of the domain in m_domains
@@ -200,6 +220,10 @@ void Karton::refreshDomainList()
         Domain *domain = new Domain(domainPtr, config, this);
         m_domains.emplace_back(domain);
     }
+
+    if (!m_domains.isEmpty()) {
+        setCurrentDomain(m_domains.first());
+    }
     free(domains);
 }
 
@@ -286,11 +310,6 @@ bool Karton::deleteDomain(const Domain *domain, const bool deleteDisk)
     return true;
 }
 
-bool Karton::viewDomain(const Domain *domain)
-{
-    return runCommand(QStringLiteral("virt-viewer --attach ") + domain->config()->name());
-}
-
 bool Karton::createDomain(const QVariantMap &config)
 {
     QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
@@ -323,7 +342,8 @@ bool Karton::createDomain(const QVariantMap &config)
     auto domainConfig = std::make_unique<DomainConfig>(configData);
 
     DomainInstaller installer;
-    if (!runCommand(QStringLiteral("qemu-img create -f qcow2 %1 %2G").arg(domainConfig->virtualDiskPath()).arg(domainConfig->maxDiskStorage()))) {
+    if (!m_commandRunner->runCommand(
+            QStringLiteral("qemu-img create -f qcow2 %1 %2G").arg(domainConfig->virtualDiskPath()).arg(domainConfig->maxDiskStorage()))) {
         return false;
     }
     if (!installer.setupDomain(m_conn, domainConfig.get())) {
@@ -347,16 +367,18 @@ QString Karton::getVirtualDiskPath(const QString &domainName)
     return QStringLiteral("%1/libvirt/images/%2.qcow2").arg(dataDir, domainName);
 }
 
-// Use for virsh, virt-viewer, virt-install and other CLI
-bool Karton::runCommand(const QString &command)
+void Karton::cleanupDomainViewer()
 {
-    qCDebug(KARTON_DEBUG) << "Running Command:" << command;
-    auto process = new QProcess(this);
-    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [this, process](int exitCode, QProcess::ExitStatus) {
-        QString output = QString::fromLocal8Bit(process->readAllStandardOutput());
-        Q_EMIT commandFinished(exitCode, output);
-    });
-    process->startCommand(command);
+    if (m_domainViewer) {
+        m_domainViewer->disconnectFromSpice();
+        delete m_domainViewer;
+        m_domainViewer = nullptr;
+    }
+}
+bool Karton::viewDomain(const Domain *domain)
+{
+    m_currentDomain = const_cast<Domain *>(domain);
+    Q_EMIT currentDomainChanged();
 
-    return process->waitForStarted();
+    return true;
 }

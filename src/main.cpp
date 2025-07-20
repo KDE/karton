@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     qCInfo(KARTON_DEBUG) << "Hello! Starting Karton...";
 
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
+
     engine.loadFromModule("org.kde.karton", "Main");
 
     if (engine.rootObjects().isEmpty()) {

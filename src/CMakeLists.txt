@@ -19,15 +19,20 @@ target_sources(karton
     domainconfig.cpp
     libvirtmonitor.cpp
     libvirteventloop.cpp
+    domainviewer.cpp
     domaininstaller.cpp
     osinfoconfig.cpp
     domainxmlreader.cpp
+    commandrunner.cpp
+    evdev_to_xtkbd_map.c
+    evdev_to_xtkbd_map.h
 )
 
 ecm_target_qml_sources(karton
     SOURCES
     qml/Main.qml
     qml/VMListPage.qml
+    qml/VMViewerWindow.qml
 )
 
 ecm_qt_declare_logging_category(
@@ -53,10 +58,12 @@ target_link_libraries(karton
     Qt6::QuickControls2
     Qt6::Widgets
     Qt6::Xml
+    Qt6::Multimedia
     KF6::I18n
     KF6::CoreAddons
     KF6::IconThemes
     Libvirt::Libvirt
+    Spiceglib::Spiceglib
     Libosinfo::Libosinfo
     Glib::Glib
 )
