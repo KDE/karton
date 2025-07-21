@@ -14,25 +14,23 @@ Kirigami.ApplicationWindow {
     
     width: Kirigami.Units.gridUnit * 53
     height: Kirigami.Units.gridUnit * 36
-    
-    Controls.Button { // full screen
-        anchors.top: parent.top - 0.5
-        anchors.right: parent.right
-        anchors.margins: Kirigami.Units.gridUnit * 1
-        
-        icon.name: "view-fullscreen"
-        onClicked: {
-            if (viewerWindow.visibility === Window.FullScreen) {
-                viewerWindow.showNormal()
-            } else {
-                viewerWindow.showFullScreen()
-            }
-        }
-    }
 
     pageStack.initialPage: Kirigami.Page {
         title: viewerWindow.title
         padding: 0 
+
+        actions: [
+            Kirigami.Action {
+                icon.name: "view-fullscreen"
+                onTriggered: {
+                    if (viewerWindow.visibility === Window.FullScreen) {
+                        viewerWindow.showNormal()
+                    } else {
+                        viewerWindow.showFullScreen()
+                    }
+                }
+            }
+        ]
 
         DomainViewer {
             anchors.centerIn: parent
