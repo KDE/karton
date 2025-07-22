@@ -21,6 +21,10 @@
 #include "karton_debug.h"
 #include "osinfoconfig.h"
 
+#ifndef ETH_ALEN
+#define ETH_ALEN 6
+#endif
+
 virDomainPtr DomainInstaller::setupDomain(virConnectPtr conn, const DomainConfig *config)
 {
     QString xmlString = generateXML(conn, config);
