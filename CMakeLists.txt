@@ -47,11 +47,11 @@ find_package(KF6 REQUIRED COMPONENTS
 )
 install(FILES
     img/karton_logo.png
-    DESTINATION /usr/share/icons/hicolor/scalable/apps
+    DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps
 )
 install(FILES
     org.kde.karton.desktop
-    DESTINATION /usr/share/applications
+    DESTINATION ${KDE_INSTALL_APPDIR}
 )
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
