@@ -33,6 +33,7 @@ ecm_target_qml_sources(karton
     qml/Main.qml
     qml/VMListPage.qml
     qml/VMViewerWindow.qml
+    qml/InstallationDialog.qml
 )
 
 ecm_qt_declare_logging_category(
