@@ -9,7 +9,6 @@ import QtQuick.Dialogs as Dialogs
 import org.kde.kirigamiaddons.formcard 1.0 as FormCard
 import org.kde.karton
 
-
 Kirigami.Dialog {
     title: i18n("Add New Virtual Machine")
     id: addDomainDialog
@@ -27,8 +26,8 @@ Kirigami.Dialog {
             icon.name: "dialog-ok"
             onTriggered: {
                 if (nameField.text.trim() === "" 
-                    && diskImageField.text.trim() === "" 
-                    && osField.text.trim() === "") {
+                    || diskImageField.text.trim() === "" 
+                    || !OsinfoConfig.getOsVariants().includes(osField.editText.trim())) {
                     showError = true;
                     return;
                 }
@@ -89,10 +88,12 @@ Kirigami.Dialog {
                     diskImageField.text = fileDialog.selectedFile.toString().replace("file://", "");
                     let shortOsId = getShortOsId(diskImageField.text);
                     if (shortOsId === "") {
-                        osTextField.placeholderText = i18n("Could not identify the OS. Please select or enter an OS Variant.");
+                        osTextField.placeholderText = i18n("Could not identify the OS. Please enter an OS Variant.");
                         osField.editText = "";
+                        osTextField.text = osField.editText;
                     } else {
                         osField.editText = shortOsId;
+                        osTextField.text = osField.editText;
                     }
                 }
             }
@@ -132,22 +133,33 @@ Kirigami.Dialog {
                     Controls.ComboBox {
                         id: osField
                         Layout.fillWidth: true
-                        model: OsinfoConfig.getOsVariants()
+                        model: OsinfoConfig.getOsVariants().filter((osVariant) => {
+                            return osVariant.startsWith(osTextField.displayText);
+                        })
                         editable: true
                         currentIndex: -1 // start empty
+                        
+                        onActivated: (index) => {
+                            osTextField.text = model[index];
+                            currentIndex = index;
+                        }
 
                         contentItem: Controls.TextField {
                             id: osTextField
-                            text: osField.editText
                             placeholderText: i18n("Select or enter an OS variant")
-                            background: Rectangle { // removes blue selection also
-                                color: "transparent"
+                            background: Item {}
+
+                            onTextEdited: {
+                                osField.popup.open();
                             }
                         }
-                        popup.height: Kirigami.Units.gridUnit * 10
+                        popup.height: Math.max(Kirigami.Units.gridUnit, // minimum height
+                                               Math.min(popup.contentItem.contentHeight, // implicit height 
+                                                        addDomainDialog.height - osField.mapToGlobal(0, osField.height).y)) // height to bottom of window
                     }
                 }
             }
+        
         }
 
         FormCard.FormCard {
