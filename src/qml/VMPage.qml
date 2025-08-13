@@ -89,9 +89,7 @@ Kirigami.ScrollablePage {
                 Connections {
                     target: domain
                     function onPreviewChanged() {
-                        // Reload image
-                        previewImage.source = '';
-                        previewImage.source = "file://" + domain.previewPath;
+                        previewImage.source = "file://" + domain.previewPath + "?" + Date.now();
                     }
                 }
             }
@@ -156,6 +154,7 @@ Kirigami.ScrollablePage {
             FormCard.FormTextDelegate {
                 text: i18n("ISO Disk Path")
                 description: domain.config.isoDiskPath
+                
             }
         }
     }

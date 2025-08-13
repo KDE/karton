@@ -19,6 +19,10 @@ Kirigami.Dialog {
     function getShortOsId(path) {
         return OsinfoConfig.getShortIdFromId(OsinfoConfig.getOsIdFromDisk(path));
     }
+    
+    onOpened: {
+        nameField.forceActiveFocus()
+    }
 
     customFooterActions: [
         Kirigami.Action {
@@ -151,6 +155,11 @@ Kirigami.Dialog {
 
                             onTextEdited: {
                                 osField.popup.open();
+                            }
+                            onActiveFocusChanged: {
+                                if (activeFocus) {
+                                    osField.popup.open();
+                                }
                             }
                         }
                         popup.height: Math.max(Kirigami.Units.gridUnit, // minimum height

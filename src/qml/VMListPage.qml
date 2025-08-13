@@ -127,13 +127,12 @@ Kirigami.ScrollablePage {
         Controls.Label {
             Layout.fillWidth: true
             wrapMode: Text.WordWrap
-            text: i18nc("%1 is the virtual machine name",
+            text: deleteConfirmationDialog.domain ? i18nc("%1 is the virtual machine name",
 `You are about to remove the virtual machine, '%1'. 
 Would you like to remove the disk image as well? 
 This action cannot be undone.`, 
-            deleteConfirmationDialog.domain.config.name)
+            deleteConfirmationDialog.domain.config.name) : ""
         }
-
         customFooterActions: [
             Kirigami.Action {
                 text: i18nc("verb, close confirmation dialog", "Cancel")
