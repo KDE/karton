@@ -60,6 +60,8 @@ public:
     void keyReleaseEvent(QKeyEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
+    Q_INVOKABLE void saveFrameToDomain();
+
     QString host() const
     {
         return m_host;

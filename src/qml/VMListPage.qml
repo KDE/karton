@@ -9,16 +9,24 @@ import org.kde.karton
 
 
 Kirigami.ScrollablePage {
-    title: i18nc("noun, title of listpage","Karton Virtual Machine Manager")
+    title: i18nc("noun, Virtual Machines","Virtual Machines")
+    topPadding: 0
+    bottomPadding: 0
+    leftPadding: 0
+    rightPadding: 0
+    
+    // implicitWidth: applicationWindow().isWidescreen ? Kirigami.Units.gridUnit * 3 : applicationWindow().width
+    
     Component.onCompleted: {
         Karton.errorOccurred.connect(function(errorMessage) {
             showPassiveNotification(errorMessage, "long");
         });
     }
+    
     actions: [
         Kirigami.Action {
             icon.name: "list-add-symbolic"
-            text: i18nc("verb, to add a new virtual machine","Add")
+            text: i18nc("verb, to create a new virtual machine", "Create")
             onTriggered: source => {
                 addDomainDialog.open();
             }
@@ -34,134 +42,56 @@ Kirigami.ScrollablePage {
         VMViewerWindow {}
     }
 
-    Kirigami.CardsListView {
+    ListView {
         id: view
         model: VMModel
+        
+        currentIndex: 0
+        
+        delegate: Controls.ItemDelegate {
+            width: ListView.view.width
+            highlighted: ListView.isCurrentItem
+            
+            leftPadding: Kirigami.Units.gridUnit
+            rightPadding: leftPadding
+            topPadding: Kirigami.Units.largeSpacing
+            bottomPadding: topPadding
 
-        delegate: Kirigami.AbstractCard {
-            contentItem: Item {
-                implicitWidth: delegateLayout.implicitWidth
-                implicitHeight: delegateLayout.implicitHeight
-                RowLayout {
-                    id: delegateLayout
-                    anchors {
-                        left: parent.left
-                        top: parent.top
-                        right: parent.right
+            ListView.onIsCurrentItemChanged: {
+                if (ListView.isCurrentItem) {
+                    while (applicationWindow().pageStack.depth > 1) { 
+                        applicationWindow().pageStack.pop();
                     }
-                    Kirigami.Icon {
-                        source: "computer-symbolic" 
-                        // TODO: Add OS Icon -> eventually, have screencap of VM window
-                        Layout.fillHeight: true
-                        Layout.maximumHeight: Kirigami.Units.iconSizes.huge
-                        Layout.preferredWidth: height
-                    }
-                    ColumnLayout {
-                        Kirigami.Heading {
-                            level: 2
-                            text: domain.config.name
-                        }
-                        Kirigami.Separator {
-                            Layout.fillWidth: true
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "UUID: " + domain.config.uuid
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "State: " + domain.config.state
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "Memory (GB): " + domain.config.maxRam
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "Memory Usage (GB): " + domain.config.ramUsage
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "CPU Cores: " + domain.config.cpus
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "Virtual Disk: " + domain.config.virtualDiskPath
-                        }
-                        Controls.Label {
-                            Layout.fillWidth: true
-                            wrapMode: Text.WordWrap
-                            text: "ISO Disk: " + domain.config.isoDiskPath
-                        }
+                    applicationWindow().pageStack.push(Qt.resolvedUrl("VMPage.qml"), {domain: domain});
+                }
+            }
 
+            onClicked: {
+                ListView.view.currentIndex = model.index;
+            }
+            contentItem: RowLayout {
+                id: delegateLayout
+                spacing: Kirigami.Units.largeSpacing
+
+                Kirigami.Icon {
+                    source: "computer-symbolic" 
+                    // TODO: Add OS Icon -> eventually, have screencap of VM window
+                    Layout.fillHeight: true
+                    Layout.maximumHeight: Kirigami.Units.iconSizes.huge
+                    Layout.preferredWidth: height
+                }
+                ColumnLayout {
+                    Kirigami.Heading {
+                        Layout.fillWidth: true
+                        font.weight: Font.DemiBold
+                        level: 3
+                        text: domain.config.name
+                        elide: Text.ElideRight
                     }
-                    ColumnLayout{
-                        Controls.Button {
-                            Layout.alignment: Qt.AlignRight|Qt.AlignVCenter
-                            Layout.columnSpan: 1
-                            text: i18nc("verb, start a VM", "Start")
-                            icon.name: "media-playback-start"
-                            onClicked: {
-                                Karton.startDomain(domain)
-                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Starting VM: %1!", domain.config.name));
-                            }
-                        }
-                        Controls.Button {
-                            Layout.alignment: Qt.AlignRight|Qt.AlignVCenter
-                            Layout.columnSpan: 1
-                            text: i18nc("verb, stop a VM", "Stop")
-                            icon.name: "system-shutdown"
-                            onClicked: {
-                                Karton.stopDomain(domain)
-                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Stopping VM: %1!", domain.config.name));
-                            }
-                        }
-                        Controls.Button {
-                            Layout.alignment: Qt.AlignRight|Qt.AlignVCenter
-                            Layout.columnSpan: 1
-                            text: i18nc("verb, stop a VM immediately", "Force Stop")
-                            // icon.name: "process-stop"
-                            onClicked: {
-                                Karton.forceStopDomain(domain)
-                                showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Force-stopping VM: %1!", domain.config.name));
-                            }
-                        }
-                        Controls.Button {
-                            Layout.alignment: Qt.AlignRight|Qt.AlignVCenter
-                            Layout.columnSpan: 1
-                            text: i18nc("verb, open viewer for VM", "View VM")
-                            icon.name: "computer-laptop-symbolic"
-                            onClicked: {
-                                let component = Qt.createComponent("VMViewerWindow.qml")
-                                if (component.status === Component.Ready) {
-                                    let window = component.createObject(null, {domain: domain})
-                                    if (window) {
-                                        window.show()
-                                        showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Opening viewer for: %1", domain.config.name))
-                                    }
-                                }
-                            }
-                        }
-                        Controls.Button {
-                            Layout.alignment: Qt.AlignRight|Qt.AlignVCenter
-                            Layout.columnSpan: 1
-                            text: i18nc("verb, delete a VM", "Delete")
-                            icon.name: "delete"
-                            onClicked: {
-                                if (domain.config.state === "running") {
-                                    showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Error: %1 is still running!", domain.config.name));
-                                    return;
-                                }
-                                deleteConfirmationDialog.domain = domain;
-                                deleteConfirmationDialog.open();
-                            }
-                        }
+                    Controls.Label {
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        text: domain.config.state + " | " + domain.config.shortOsId
                     }
                 }
             }

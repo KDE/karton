@@ -15,6 +15,10 @@ Kirigami.ApplicationWindow {
     width: Kirigami.Units.gridUnit * 53
     height: Kirigami.Units.gridUnit * 36
 
+    onClosing: {
+        domainViewer.saveFrameToDomain();
+    }
+
     pageStack.initialPage: Kirigami.Page {
         title: viewerWindow.title
         padding: 0 
@@ -33,6 +37,8 @@ Kirigami.ApplicationWindow {
         ]
 
         DomainViewer {
+            id: domainViewer
+
             anchors.centerIn: parent
             domain: viewerWindow.domain
 

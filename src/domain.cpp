@@ -3,6 +3,9 @@
 
 #include "domain.h"
 
+#include <QDir>
+#include <QFile>
+#include <QStandardPaths>
 #include <QString>
 
 #include "domainconfig.h"
@@ -73,4 +76,26 @@ QString Domain::uuidString(virDomainPtr domainPtr)
         return {};
     }
     return QString::fromUtf8(uuid.data());
+}
+
+void Domain::savePreviewFrame(QImage frame)
+{
+    qCDebug(KARTON_DEBUG) << "SavePreviewPath:" << previewPath();
+    QDir baseDir(kartonDir());
+    if (!baseDir.mkpath(QStringLiteral("previews"))) {
+        qCCritical(KARTON_DEBUG) << "Failed to create preview directory: " << kartonDir();
+        return;
+    }
+    frame.save(previewPath());
+
+    Q_EMIT previewChanged();
+}
+QString Domain::kartonDir() const
+{
+    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+    return QStringLiteral("%1/karton").arg(dataDir);
+}
+QString Domain::previewPath() const
+{
+    return QStringLiteral("%1/previews/%2.png").arg(kartonDir()).arg(m_config->uuid());
 }

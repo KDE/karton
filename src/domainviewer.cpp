@@ -512,3 +512,8 @@ void DomainViewer::checkChannelStatus()
         qCWarning(KARTON_DEBUG) << "No display channel found after" << (m_connected ? "successful connection!" : "failed connection");
     }
 }
+
+void DomainViewer::saveFrameToDomain()
+{
+    m_domain->savePreviewFrame(std::move(m_frame.copy()));
+}
