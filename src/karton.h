@@ -57,6 +57,7 @@ public Q_SLOTS:
     Q_INVOKABLE bool forceStopDomain(const Domain *domain);
     Q_INVOKABLE bool createDomain(const QVariantMap &config);
     Q_INVOKABLE bool deleteDomain(const Domain *domain, const bool deleteDisk);
+    Q_INVOKABLE bool ejectDisk(const Domain *domain);
 
 Q_SIGNALS:
     void domainsChanged(const virDomainPtr domainPtr, int event, int detail);

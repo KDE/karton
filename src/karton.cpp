@@ -375,10 +375,44 @@ void Karton::cleanupDomainViewer()
         m_domainViewer = nullptr;
     }
 }
+
 bool Karton::viewDomain(const Domain *domain)
 {
     m_currentDomain = const_cast<Domain *>(domain);
     Q_EMIT currentDomainChanged();
 
+    return true;
+}
+
+bool Karton::ejectDisk(const Domain *domain)
+{
+    virDomainPtr domainPtr = domain->domainPtr();
+
+    if (!virDomainIsActive(domainPtr)) {
+        QString errorMsg = QStringLiteral("Cannot eject disk: domain '%1' is not active").arg(domain->config()->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+
+    // replaces current device with empty XML
+    QString ejectXml = QStringLiteral(
+        "<disk type='file' device='cdrom'>"
+        "  <driver name='qemu' type='raw'/>"
+        "  <target dev='sda' bus='sata'/>"
+        "  <readonly/>"
+        "</disk>");
+
+    // eject from both running VM and persistent config
+    int result = virDomainUpdateDeviceFlags(domainPtr, ejectXml.toUtf8().constData(), VIR_DOMAIN_AFFECT_LIVE | VIR_DOMAIN_AFFECT_CONFIG);
+
+    if (result < 0) {
+        QString errorMsg = QStringLiteral("Failed to eject ISO disk from domain: %1").arg(domain->config()->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+
+    qCInfo(KARTON_DEBUG) << "Successfully ejected ISO disk from domain:" << domain->config()->name();
     return true;
 }

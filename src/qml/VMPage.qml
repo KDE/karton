@@ -115,7 +115,12 @@ Kirigami.ScrollablePage {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 hoverEnabled: true
-                onClicked: viewVMAction.trigger()
+                onClicked: {
+                    if (!isRunning) {
+                        Karton.startDomain(domain);
+                    }
+                    viewVMAction.trigger()
+                }
             }
         }
         FormCard.FormCard {
@@ -154,8 +159,78 @@ Kirigami.ScrollablePage {
             FormCard.FormTextDelegate {
                 text: i18n("ISO Disk Path")
                 description: domain.config.isoDiskPath
-                
+                trailing: Controls.Button {
+                    text: "Eject"
+                    icon.name: "media-eject"
+                    onClicked: {
+                        if (Karton.ejectDisk(domain)) {
+                            showPassiveNotification(i18nc("%1 is the name of the virtual machine", "ISO Disk ejected for VM: %1", domain.config.name));
+                            return;
+                        }
+                    }
+                }
             }
         }
+    }
+    Kirigami.Dialog {
+        id: deleteConfirmationDialog
+        title: i18nc("Confirm deleting %1 (virtual machine name)", "Delete '%1'?", 
+            deleteConfirmationDialog.domain ? deleteConfirmationDialog.domain.config.name : "")
+
+        padding: Kirigami.Units.largeSpacing
+        preferredWidth: root.width - Kirigami.Units.gridUnit * 30
+        preferredHeight: root.height - Kirigami.Units.gridUnit * 30
+        
+        showCloseButton: false
+        standardButtons: Kirigami.Dialog.NoButton
+        flatFooterButtons: false
+
+        property var domain: null
+
+        Controls.Label {
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            text: deleteConfirmationDialog.domain ? i18nc("%1 is the virtual machine name",
+`You are about to remove the virtual machine, '%1'. 
+Would you like to remove the disk image as well? 
+This action cannot be undone.`, 
+            deleteConfirmationDialog.domain.config.name) : ""
+        }
+        customFooterActions: [
+            Kirigami.Action {
+                text: i18nc("verb, close confirmation dialog", "Cancel")
+                icon.name: "dialog-cancel"
+                onTriggered: {
+                    deleteConfirmationDialog.domain = null;
+                    deleteConfirmationDialog.close();
+                }
+            },
+            Kirigami.Action {
+                text: i18nc("action, delete VM but keep disk image", "Keep File")
+                icon.name: "edit-delete-remove"
+                
+                onTriggered: {
+                    if (deleteConfirmationDialog.domain) {
+                        Karton.deleteDomain(deleteConfirmationDialog.domain, false);
+                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Undefining %1!", deleteConfirmationDialog.domain.config.name));
+                        deleteConfirmationDialog.domain = null;
+                        deleteConfirmationDialog.close();
+                    }
+                }
+            },
+            Kirigami.Action {
+                text: i18nc("action, delete VM and disk image", "Delete Disk")
+                icon.name: "delete"
+                
+                onTriggered: {
+                    if (deleteConfirmationDialog.domain) {
+                        Karton.deleteDomain(deleteConfirmationDialog.domain, true);
+                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Undefining %1!", deleteConfirmationDialog.domain.config.name));
+                        deleteConfirmationDialog.domain = null;
+                        deleteConfirmationDialog.close();
+                    }
+                }
+            }
+        ]
     }
 }
