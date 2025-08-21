@@ -92,8 +92,8 @@ void Domain::savePreviewFrame(QImage frame)
 }
 QString Domain::kartonDir() const
 {
-    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
-    return QStringLiteral("%1/karton").arg(dataDir);
+    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::StateLocation);
+    return QStringLiteral("%1").arg(dataDir);
 }
 QString Domain::previewPath() const
 {
