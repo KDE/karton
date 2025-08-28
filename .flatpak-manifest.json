@@ -16,6 +16,21 @@
         "--device=all",
         "--filesystem=home"
     ],
+    "cleanup": [
+        "/include",
+        "/lib/*.a",
+        "/lib/*.la",
+        "/lib/cmake",
+        "/lib/pkgconfig",
+        "/share/kdevappwizard",
+        "/share/doc",
+        "/share/gtk-doc",
+        "/share/man",
+        "/share/pkgconfig",
+        "/share/qlogging-categories6",
+        "/usr",
+        "/var"
+    ],
     "modules": [
         {
             "name": "libvirt-glib",
