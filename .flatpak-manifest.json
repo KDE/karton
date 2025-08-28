@@ -7,13 +7,13 @@
     "command": "karton",
     "tags": ["nightly"],
     "finish-args": [
-        "--share=ipc",
-        "--socket=fallback-x11",
-        "--socket=wayland",
-        "--socket=pulseaudio",
-        "--share=network",
         "--device=all",
-        "--filesystem=home"
+        "--filesystem=home",
+        "--share=ipc",
+        "--share=network",
+        "--socket=fallback-x11",
+        "--socket=pulseaudio",
+        "--socket=wayland"
     ],
     "cleanup": [
         "/include",
