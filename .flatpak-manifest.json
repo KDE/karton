@@ -1,0 +1,394 @@
+{
+    "app-id": "org.kde.karton",
+    "branch": "master",
+    "runtime": "org.kde.Platform",
+    "runtime-version": "6.9",
+    "sdk": "org.kde.Sdk",
+    "command": "karton",
+    "tags": ["nightly"],
+    "finish-args": [
+        "--share=ipc",
+        "--socket=fallback-x11",
+        "--socket=x11",
+        "--socket=wayland",
+        "--socket=pulseaudio",
+        "--share=network",
+        "--device=all",
+        "--filesystem=home"
+    ],
+    "modules": [
+        {
+            "name": "libvirt-glib",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.com/libvirt/libvirt-glib",
+                    "branch": "master"
+                }
+            ],
+            "modules": [
+                {
+                    "name": "libnl",
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz",
+                            "sha256": "352133ec9545da76f77e70ccb48c9d7e5324d67f6474744647a7ed382b5e05fa"
+                        }
+                    ]
+                },
+                {
+                    "name": "yajl",
+                    "buildsystem": "cmake-ninja",
+                    "builddir": true,
+                    "config-opts": [
+                        "-DCMAKE_BUILD_TYPE=Release"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://github.com/lloyd/yajl/archive/refs/tags/2.1.0.tar.gz",
+                            "sha256" : "3fb73364a5a30efe615046d07e6db9d09fd2b41c763c5f7d3bfb121cd5c5ac5a"
+                        }
+                    ]
+                },
+                {
+                    "name": "libtirpc",
+                    "config-opts": [
+                        "--disable-gssapi",
+                        "--libdir=/app/lib"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-1.3.2.tar.bz2",
+                            "sha256": "e24eb88b8ce7db3b7ca6eb80115dd1284abc5ec32a8deccfed2224fc2532b9fd"
+                        }
+                    ]
+                },
+                {
+                    "name": "rpcsvc-proto",
+                    "buildsystem": "autotools",
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.1.tar.gz",
+                            "sha256": "750f7e57b81407a25b707867e90d7ee80aeb53bf515b114fc218f3c78dc9a6e8"
+                        }
+                    ]
+                },
+                {
+                    "name": "libvirt",
+                    "builddir": true,
+                    "buildsystem": "meson",
+                    "build-options": {
+                        "cflags": "-I/app/include/tirpc -ltirpc"
+                    },
+                    "config-opts": [
+                        "-Ddocs=disabled"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://libvirt.org/sources/libvirt-9.0.0.tar.xz",
+                            "sha256": "deca5cff1b7baac297bca9663907c61f71a47183371dc7ac019c107806d5435a"
+                        },
+                        {
+                            "type": "patch",
+                            "path": "flatpak/libvirt-use-monitor-in-xdg-runtime-dir.patch"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "spice-gtk",
+            "buildsystem": "meson",
+            "build-options": {
+                "env": {
+                    "PYTHONPATH": "/app"
+                }
+            },
+            "config-opts": [
+                "-Dgtk=disabled",
+                "-Dvapi=disabled",
+                "-Dwebdav=enabled",
+                "-Dpolkit=disabled",
+                "-Dusbredir=disabled",
+                "-Dgtk_doc=disabled"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://www.spice-space.org/download/gtk/spice-gtk-0.42.tar.xz",
+                    "sha256": "9380117f1811ad1faa1812cb6602479b6290d4a0d8cc442d44427f7f6c0e7a58"
+                }
+            ],
+            "modules": [
+                {
+                    "name": "spice-protocol",
+                    "buildsystem": "meson",
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://www.spice-space.org/download/releases/spice-protocol-0.14.3.tar.xz",
+                            "sha256": "f986e5bc2a1598532c4897f889afb0df9257ac21c160c083703ae7c8de99487a"
+                        }
+                    ]
+                },
+                {
+                    "name": "phodav",
+                    "buildsystem": "meson",
+                    "config-opts": [
+                        "-Dsystemdsystemunitdir=/app/lib/systemd/system",
+                        "-Dudevrulesdir=usr/lib/udev/rules.d"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://download.gnome.org/sources/phodav/3.0/phodav-3.0.tar.xz",
+                            "sha256": "392ec2d06d50300dcff1ef269a2a985304e29bce3520002fca29f2edc1d138d1"
+                        }
+                    ]
+                },
+                {
+                    "name": "python-pyparsing",
+                    "buildsystem": "simple",
+                    "build-commands": [
+                        "pip3 install --prefix=/app pyparsing-2.4.6-py2.py3-none-any.whl"
+                    ],
+                    "sources": [
+                        {
+                            "type": "file",
+                            "url": "https://files.pythonhosted.org/packages/5d/bc/1e58593167fade7b544bfe9502a26dc860940a79ab306e651e7f13be68c2/pyparsing-2.4.6-py2.py3-none-any.whl",
+                            "sha256": "c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec"
+                        }
+                    ]
+                },
+                {
+                    "name": "libcacard",
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://www.spice-space.org/download/libcacard/libcacard-2.8.1.tar.xz",
+                            "sha256": "fbbf4de8cb7db5bdff5ecb672ff0dbe6939fb9f344b900d51ba6295329a332e7"
+                        }
+                    ]
+                },
+                {
+                    "name": "spice",
+                    "buildsystem": "autotools",
+                    "config-opts": [
+                        "--disable-lz4",
+                        "--disable-manual",
+                        "--disable-test"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://www.spice-space.org/download/releases/spice-0.15.1.tar.bz2",
+                            "sha256": "ada9af67ab321916bd7eb59e3d619a4a7796c08a28c732edfc7f02fc80b1a37a"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "qemu",
+            "config-opts": [
+                "--disable-user",
+                "--enable-kvm",
+                "--enable-spice",
+                "--enable-opengl",
+                "--enable-virglrenderer",
+                "--enable-usb-redir",
+                "--enable-smartcard",
+                "--enable-slirp",
+                "--python=/bin/python3",
+                "--target-list=x86_64-softmmu,i386-softmmu"
+            ],
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://download.qemu.org/qemu-7.2.0.tar.xz",
+                    "sha256": "5b49ce2687744dad494ae90a898c52204a3406e84d072482a1e1be854eeb2157"
+                }
+            ],
+            "modules": [
+                {
+                    "name": "slirp",
+                    "buildsystem": "meson",
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://src.fedoraproject.org/repo/pkgs/libslirp/libslirp-4.7.0.tar.xz/sha512/00b943ec758d7c2d3213a239b1cb7376d2d06d851afd9d5a808c787a76dfdd442570253ca509085c6c3ef528472aec9216587dbfc3348d7eb325b92b8f8b1ac3/libslirp-4.7.0.tar.xz",
+                            "sha256": "355aa2fbbaf6232135d7973fdbbbc85da22ea3f6a57f41164eeaa9e05d8a4f7e"
+                        }
+                    ]
+                },
+                {
+                    "name": "libusb",
+                    "config-opts": [
+                        "--disable-udev"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.24.tar.bz2",
+                            "sha256": "7efd2685f7b327326dcfb85cee426d9b871fd70e22caa15bb68d595ce2a2b12a"
+                        }
+                    ]
+                },
+                {
+                    "name": "usbredir",
+                    "buildsystem" : "meson",
+                    "config-opts": [
+                        "-Dtools=disabled"
+                    ],
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://spice-space.org/download/usbredir/usbredir-0.13.0.tar.xz",
+                            "sha256": "4ba6faa02c0ae6deeb4c53883d66ab54b3a5899bead42ce4ded9568b9a7dc46e"
+                        }
+                    ]
+                },
+                {
+                    "name": "virglrenderer",
+                    "buildsystem": "meson",
+                    "sources": [
+                        {
+                            "type": "archive",
+                            "url": "https://src.fedoraproject.org/repo/pkgs/virglrenderer/virglrenderer-1.1.0.tar.bz2/sha512/d82a3b576eb9f006dc8eb21c805105a1011ec267f10b4702a415330c8bc64cb9e7308748e6e15793d8b68c888d9e42c35ddb8c3554229915251f7906c1c21550/virglrenderer-1.1.0.tar.bz2",
+                            "sha256": "5c680ab2dec434b28252fd2353f1e212d4d87beedbf6c1e74ae7e3d0f655b1bd"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "libosinfo",
+            "buildsystem": "meson",
+            "config-opts": [
+                "-Dwith-pci-ids-path=/app/share/hwdata/pci.ids",
+                "-Dwith-usb-ids-path=/app/share/hwdata/usb.ids"
+            ],
+            "post-install": [
+                "install -Dm644 ../pci.ids /app/share/hwdata/pci.ids",
+                "install -Dm644 ../usb.ids /app/share/hwdata/usb.ids"
+            ],
+            "sources": [
+                {
+                    "type": "git",
+                    "url": "https://gitlab.com/libosinfo/libosinfo.git",
+                    "tag": "v1.12.0",
+                    "commit": "b505ef5161d2552102a743acd4ad83298d3d8f99",
+                    "x-checker-data": {
+                        "type": "git",
+                        "url": "https://gitlab.com/libosinfo/libosinfo.git",
+                        "tag-pattern": "^(v[\\d.]+)$"
+                    }
+                },
+                {
+                    "type": "file",
+                    "path": "flatpak/pci.ids"
+                },
+                {
+                    "type": "file",
+                    "path": "flatpak/usb.ids"
+                }
+            ],
+            "modules": [
+                {
+                    "name": "cdrkit",
+                    "buildsystem": "cmake",
+                    "sources": [
+                        {
+                            "type": "git",
+                            "url": "https://github.com/Distrotech/cdrkit",
+                            "branch": "7b4bb72389ea5ea3ecc94545036dcff4728ec38a"
+                        },
+                        {
+                            "type": "patch",
+                            "path": "flatpak/genisoimage-extern.patch"
+                        },
+                        {
+                            "type": "patch",
+                            "path": "flatpak/cdrkit-build-fix.patch"
+                        }
+                    ]
+                },
+                {
+                    "name": "osinfo-db-tools",
+                    "buildsystem": "meson",
+                    "sources": [
+                        {
+                            "type": "git",
+                            "url": "https://gitlab.com/libosinfo/osinfo-db-tools.git",
+                            "tag": "v1.12.0",
+                            "commit": "e5564be303bfac49cc3490bd0fada342cd65566f",
+                            "x-checker-data": {
+                                "type": "git",
+                                "url": "https://gitlab.com/libosinfo/osinfo-db-tools.git",
+                                "tag-pattern": "^(v[\\d.]+)$"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "osinfo-db",
+                    "buildsystem": "simple",
+                    "builddir": true,
+                    "build-commands": [
+                        "make",
+                        "osinfo-db-import --dir /app/share/osinfo/ osinfo-db-*.tar.xz"
+                    ],
+                    "sources": [
+                        {
+                            "type": "git",
+                            "url": "https://gitlab.com/libosinfo/osinfo-db.git",
+                            "tag": "v20250124",
+                            "commit": "5be10e2c781b62bbaa55bd8f9ae990697fc325b4",
+                            "x-checker-data": {
+                                "type": "git",
+                                "url": "https://gitlab.com/libosinfo/osinfo-db.git",
+                                "tag-pattern": "^(v\\d+)$"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "kirigami-addons",
+            "config-opts": [
+                "-DBUILD_TESTING=OFF"
+            ],
+            "buildsystem": "cmake-ninja",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://download.kde.org/stable/kirigami-addons/kirigami-addons-1.9.0.tar.xz",
+                    "sha256": "21314a91f26b1c962def3fd7ff2e762d3358b075f63f4d7e0144fb2c63b7ebc7",
+                    "x-checker-data": {
+                        "type": "anitya",
+                        "project-id": 242933,
+                        "stable-only": true,
+                        "url-template": "https://download.kde.org/stable/kirigami-addons/kirigami-addons-$version.tar.xz"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "org.kde.karton",
+            "buildsystem": "cmake-ninja",
+            "sources": [
+                {
+                    "type": "dir",
+                    "path": "."
+                }
+            ]
+        }
+    ]
+}

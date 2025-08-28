@@ -43,6 +43,7 @@ configuration
 # qtcreator generated files
 *.pro.user*
 CMakeLists.txt.user*
+/.flatpak-builder
 
 # xemacs temporary files
 *.flc
