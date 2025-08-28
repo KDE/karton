@@ -6,6 +6,7 @@
     "sdk": "org.kde.Sdk",
     "command": "karton",
     "tags": ["nightly"],
+    "rename-icon": "karton_logo",
     "finish-args": [
         "--device=all",
         "--filesystem=home",
