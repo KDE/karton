@@ -48,7 +48,13 @@
                         {
                             "type": "archive",
                             "url": "https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz",
-                            "sha256": "352133ec9545da76f77e70ccb48c9d7e5324d67f6474744647a7ed382b5e05fa"
+                            "sha256": "352133ec9545da76f77e70ccb48c9d7e5324d67f6474744647a7ed382b5e05fa",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 1684,
+                                "stable-only": true,
+                                "url-template": "https://github.com/thom311/libnl/releases/download/libnl${major}_${minor}_${patch}/libnl-$version.tar.gz"
+                            }
                         }
                     ]
                 },
@@ -63,7 +69,13 @@
                         {
                             "type": "archive",
                             "url": "https://github.com/lloyd/yajl/archive/refs/tags/2.1.0.tar.gz",
-                            "sha256" : "3fb73364a5a30efe615046d07e6db9d09fd2b41c763c5f7d3bfb121cd5c5ac5a"
+                            "sha256" : "3fb73364a5a30efe615046d07e6db9d09fd2b41c763c5f7d3bfb121cd5c5ac5a",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 5283,
+                                "stable-only": true,
+                                "url-template": "https://github.com/lloyd/yajl/archive/refs/tags/$version.tar.gz"
+                            }
                         }
                     ]
                 },
@@ -77,7 +89,13 @@
                         {
                             "type": "archive",
                             "url": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-1.3.2.tar.bz2",
-                            "sha256": "e24eb88b8ce7db3b7ca6eb80115dd1284abc5ec32a8deccfed2224fc2532b9fd"
+                            "sha256": "e24eb88b8ce7db3b7ca6eb80115dd1284abc5ec32a8deccfed2224fc2532b9fd",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 1740,
+                                "stable-only": true,
+                                "url-template": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-$version.tar.bz2"
+                            }
                         }
                     ]
                 },
@@ -88,7 +106,13 @@
                         {
                             "type": "archive",
                             "url": "https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.1.tar.gz",
-                            "sha256": "750f7e57b81407a25b707867e90d7ee80aeb53bf515b114fc218f3c78dc9a6e8"
+                            "sha256": "750f7e57b81407a25b707867e90d7ee80aeb53bf515b114fc218f3c78dc9a6e8",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 155452,
+                                "stable-only": true,
+                                "url-template": "https://github.com/thkukuk/rpcsvc-proto/archive/v$version.tar.gz"
+                            }
                         }
                     ]
                 },
@@ -106,7 +130,13 @@
                         {
                             "type": "archive",
                             "url": "https://libvirt.org/sources/libvirt-9.0.0.tar.xz",
-                            "sha256": "deca5cff1b7baac297bca9663907c61f71a47183371dc7ac019c107806d5435a"
+                            "sha256": "deca5cff1b7baac297bca9663907c61f71a47183371dc7ac019c107806d5435a",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 13830,
+                                "stable-only": true,
+                                "url-template": "https://libvirt.org/sources/libvirt-$version.tar.xz"
+                            }
                         },
                         {
                             "type": "patch",
@@ -136,7 +166,13 @@
                 {
                     "type": "archive",
                     "url": "https://www.spice-space.org/download/gtk/spice-gtk-0.42.tar.xz",
-                    "sha256": "9380117f1811ad1faa1812cb6602479b6290d4a0d8cc442d44427f7f6c0e7a58"
+                    "sha256": "9380117f1811ad1faa1812cb6602479b6290d4a0d8cc442d44427f7f6c0e7a58",
+                    "x-checker-data": {
+                        "type": "anitya",
+                        "project-id": 11576,
+                        "stable-only": true,
+                        "url-template": "https://www.spice-space.org/download/gtk/spice-gtk-$version.tar.xz"
+                    }
                 }
             ],
             "modules": [
@@ -147,7 +183,13 @@
                         {
                             "type": "archive",
                             "url": "https://www.spice-space.org/download/releases/spice-protocol-0.14.3.tar.xz",
-                            "sha256": "f986e5bc2a1598532c4897f889afb0df9257ac21c160c083703ae7c8de99487a"
+                            "sha256": "f986e5bc2a1598532c4897f889afb0df9257ac21c160c083703ae7c8de99487a",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 14892,
+                                "stable-only": true,
+                                "url-template": "https://www.spice-space.org/download/releases/spice-protocol-$version.tar.xz"
+                            }
                         }
                     ]
                 },
@@ -162,7 +204,13 @@
                         {
                             "type": "archive",
                             "url": "https://download.gnome.org/sources/phodav/3.0/phodav-3.0.tar.xz",
-                            "sha256": "392ec2d06d50300dcff1ef269a2a985304e29bce3520002fca29f2edc1d138d1"
+                            "sha256": "392ec2d06d50300dcff1ef269a2a985304e29bce3520002fca29f2edc1d138d1",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 9670,
+                                "stable-only": true,
+                                "url-template": "https://download.gnome.org/sources/phodav/$version/phodav-$version.tar.xz"
+                            }
                         }
                     ]
                 },
@@ -176,7 +224,11 @@
                         {
                             "type": "file",
                             "url": "https://files.pythonhosted.org/packages/5d/bc/1e58593167fade7b544bfe9502a26dc860940a79ab306e651e7f13be68c2/pyparsing-2.4.6-py2.py3-none-any.whl",
-                            "sha256": "c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec"
+                            "sha256": "c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec",
+                            "x-checker-data": {
+                                "type": "pypi",
+                                "name": "pyparsing"
+                            }
                         }
                     ]
                 },
@@ -186,7 +238,13 @@
                         {
                             "type": "archive",
                             "url": "https://www.spice-space.org/download/libcacard/libcacard-2.8.1.tar.xz",
-                            "sha256": "fbbf4de8cb7db5bdff5ecb672ff0dbe6939fb9f344b900d51ba6295329a332e7"
+                            "sha256": "fbbf4de8cb7db5bdff5ecb672ff0dbe6939fb9f344b900d51ba6295329a332e7",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 18776,
+                                "stable-only": true,
+                                "url-template": "https://www.spice-space.org/download/libcacard/libcacard-$version.tar.xz"
+                            }
                         }
                     ]
                 },
@@ -202,7 +260,13 @@
                         {
                             "type": "archive",
                             "url": "https://www.spice-space.org/download/releases/spice-0.15.1.tar.bz2",
-                            "sha256": "ada9af67ab321916bd7eb59e3d619a4a7796c08a28c732edfc7f02fc80b1a37a"
+                            "sha256": "ada9af67ab321916bd7eb59e3d619a4a7796c08a28c732edfc7f02fc80b1a37a",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 4871,
+                                "stable-only": true,
+                                "url-template": "https://www.spice-space.org/download/releases/spice-$version.tar.bz2"
+                            }
                         }
                     ]
                 }
