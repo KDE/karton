@@ -35,11 +35,20 @@
         {
             "name": "libvirt-glib",
             "buildsystem": "meson",
+            "config-opts": [
+                "-Dtests=disabled"
+            ],
             "sources": [
                 {
-                    "type": "git",
-                    "url": "https://gitlab.com/libvirt/libvirt-glib",
-                    "branch": "master"
+                    "type": "archive",
+                    "url": "https://download.libvirt.org/glib/libvirt-glib-5.0.0.tar.xz",
+                    "sha256": "9bfec346382416a3575d87299bc641b2a464aa519fd9b1287e318aa43a2f3b8b",
+                    "x-checker-data": {
+                        "type": "anitya",
+                        "project-id": 11560,
+                        "stable-only": true,
+                        "url-template": "https://download.libvirt.org/glib/libvirt-glib-$version.tar.xz"
+                    }
                 }
             ],
             "modules": [
@@ -64,7 +73,8 @@
                     "buildsystem": "cmake-ninja",
                     "builddir": true,
                     "config-opts": [
-                        "-DCMAKE_BUILD_TYPE=Release"
+                        "-DCMAKE_BUILD_TYPE=Release",
+                        "-DBUILD_TESTING=OFF"
                     ],
                     "sources": [
                         {
@@ -125,7 +135,8 @@
                         "cflags": "-I/app/include/tirpc -ltirpc"
                     },
                     "config-opts": [
-                        "-Ddocs=disabled"
+                        "-Ddocs=disabled",
+                        "-Dtests=disabled"
                     ],
                     "sources": [
                         {
@@ -157,11 +168,11 @@
             },
             "config-opts": [
                 "-Dgtk=disabled",
-                "-Dvapi=disabled",
-                "-Dwebdav=enabled",
+                "-Dgtk_doc=disabled",
                 "-Dpolkit=disabled",
                 "-Dusbredir=disabled",
-                "-Dgtk_doc=disabled"
+                "-Dvapi=disabled",
+                "-Dwebdav=enabled"
             ],
             "sources": [
                 {
@@ -235,6 +246,7 @@
                 },
                 {
                     "name": "libcacard",
+                    "buildsystem": "meson",
                     "sources": [
                         {
                             "type": "archive",
@@ -361,13 +373,12 @@
                 {
                     "type": "git",
                     "url": "https://gitlab.com/libosinfo/libosinfo.git",
-                    "tag": "v1.12.0",
-                    "commit": "b505ef5161d2552102a743acd4ad83298d3d8f99",
-                    "x-checker-data": {
-                        "type": "git",
-                        "url": "https://gitlab.com/libosinfo/libosinfo.git",
-                        "tag-pattern": "^(v[\\d.]+)$"
-                    }
+                    "branch": "main",
+                    "buildsystem": "meson",
+                    "config-opts": [
+                        "-Dsystemdsystemunitdir=/app/lib/systemd/system",
+                        "-Dudevrulesdir=usr/lib/udev/rules.d"
+                    ]
                 },
                 {
                     "type": "file",
@@ -427,13 +438,7 @@
                         {
                             "type": "git",
                             "url": "https://gitlab.com/libosinfo/osinfo-db.git",
-                            "tag": "v20250124",
-                            "commit": "5be10e2c781b62bbaa55bd8f9ae990697fc325b4",
-                            "x-checker-data": {
-                                "type": "git",
-                                "url": "https://gitlab.com/libosinfo/osinfo-db.git",
-                                "tag-pattern": "^(v\\d+)$"
-                            }
+                            "branch": "main"
                         }
                     ]
                 }
