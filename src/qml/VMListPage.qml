@@ -48,6 +48,15 @@ Kirigami.ScrollablePage {
         
         currentIndex: 0
         
+        // When VM list empty... make placeholder welcome text the full page.
+        onCountChanged: {
+            if (count === 0) {
+                while (applicationWindow().pageStack.depth > 1) {
+                    applicationWindow().pageStack.pop();
+                }
+            }
+        }
+
         delegate: Controls.ItemDelegate {
             width: ListView.view.width
             highlighted: ListView.isCurrentItem
@@ -63,7 +72,7 @@ Kirigami.ScrollablePage {
                         applicationWindow().pageStack.pop();
                     }
                     applicationWindow().pageStack.push(Qt.resolvedUrl("VMPage.qml"), {domain: domain});
-                }
+                } 
             }
 
             onClicked: {
