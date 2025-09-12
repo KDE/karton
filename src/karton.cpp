@@ -23,7 +23,7 @@
 Karton::Karton(QObject *parent)
     : QObject(parent)
     , m_conn(nullptr)
-    , m_domains(QVector<Domain *>())
+    , m_domains()
     , m_monitor(nullptr)
     , m_domainViewer(nullptr)
     , m_currentDomain(nullptr)
@@ -191,9 +191,15 @@ void Karton::refreshDomainList()
         int cpus = domInfo.nrVirtCpu;
 
         QString dataDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+        QString stateDir = QStandardPaths::writableLocation(QStandardPaths::StateLocation);
         QString xmlConfigPath = getXmlConfigPath(QString::fromUtf8(name));
 
         DomainXmlReader *reader = new DomainXmlReader(xmlConfigPath);
+
+        QString screenshotPreviewPath = reader->m_xmlInfo.screenshotPreviewPath;
+        if (screenshotPreviewPath == QString()) { // set default path if not found
+            screenshotPreviewPath = QStringLiteral("%1/previews/%2.png").arg(stateDir).arg(Domain::uuidString(domainPtr));
+        }
 
         int autoFlag = 0;
         virDomainGetAutostart(domains[i], &autoFlag);
@@ -215,6 +221,7 @@ void Karton::refreshDomainList()
                                        .xmlConfigPath = xmlConfigPath,
                                        .isoDiskPath = reader->m_xmlInfo.isoDiskPath,
                                        .virtualDiskPath = reader->m_xmlInfo.virtualDiskPath,
+                                       .screenshotPreviewPath = screenshotPreviewPath,
                                        .autostart = autostart,
                                        .parent = this};
 
@@ -307,6 +314,13 @@ bool Karton::deleteDomain(const Domain *domain, const bool deleteDisk)
         }
         qCInfo(KARTON_DEBUG) << "Successfully deleted disk image of " << domain->config()->name();
     }
+    if (!QFile::remove(domain->config()->screenshotPreviewPath())) {
+        QString errorMsg = i18nc("%1 is path of the image file", "Failed to delete image file: %1", domain->config()->virtualDiskPath());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+    qCInfo(KARTON_DEBUG) << "Successfully deleted preview image of " << domain->config()->name();
 
     qCInfo(KARTON_DEBUG) << "Successfully undefined domain:" << domain->config()->name();
     return true;

@@ -84,12 +84,12 @@ Kirigami.ScrollablePage {
                 id: previewImage
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectFit
-                source: "file://" + domain.previewPath
+                source: "file://" + domain.config.screenshotPreviewPath
 
                 Connections {
                     target: domain
                     function onPreviewChanged() {
-                        previewImage.source = "file://" + domain.previewPath + "?" + Date.now();
+                        previewImage.source = "file://" + domain.config.screenshotPreviewPath + "?" + Date.now();
                     }
                 }
             }

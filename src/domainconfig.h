@@ -25,6 +25,7 @@ class DomainConfig : public QObject
     Q_PROPERTY(QString xmlConfigPath READ xmlConfigPath CONSTANT)
     Q_PROPERTY(QString isoDiskPath READ isoDiskPath CONSTANT)
     Q_PROPERTY(QString virtualDiskPath READ virtualDiskPath CONSTANT)
+    Q_PROPERTY(QString screenshotPreviewPath READ screenshotPreviewPath CONSTANT)
     Q_PROPERTY(bool autostart READ autostart NOTIFY autostartChanged)
 
 Q_SIGNALS:
@@ -50,6 +51,7 @@ public:
         QString xmlConfigPath;
         QString isoDiskPath;
         QString virtualDiskPath;
+        QString screenshotPreviewPath;
         bool autostart;
         QObject *parent = nullptr;
     };
@@ -70,6 +72,7 @@ public:
                           const QString &xmlConfigPath,
                           const QString &isoDiskPath,
                           const QString &virtualDiskPath,
+                          const QString &screenshotPreviewPath,
                           bool autostart,
                           QObject *parent = nullptr);
 
@@ -134,6 +137,10 @@ public:
     {
         return m_virtualDiskPath;
     }
+    [[nodiscard]] QString screenshotPreviewPath() const
+    {
+        return m_screenshotPreviewPath;
+    }
     [[nodiscard]] bool autostart() const
     {
         return m_autostart;
@@ -160,5 +167,6 @@ private:
     QString m_xmlConfigPath;
     QString m_isoDiskPath;
     QString m_virtualDiskPath;
+    QString m_screenshotPreviewPath;
     bool m_autostart;
 };

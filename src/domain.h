@@ -21,7 +21,6 @@ class Domain : public QObject
     Q_PROPERTY(int ramUsage READ ramUsage NOTIFY ramUsageChanged)
     Q_PROPERTY(bool autostart READ autostart NOTIFY autostartChanged)
     Q_PROPERTY(DomainConfig *config READ config CONSTANT)
-    Q_PROPERTY(QString previewPath READ previewPath CONSTANT)
 
 Q_SIGNALS:
     void isActiveChanged(const bool active);
@@ -71,7 +70,6 @@ public:
     void setAutostart(bool autostart);
     static QString uuidString(virDomainPtr domainPtr);
     void savePreviewFrame(QImage frame);
-    QString previewPath() const;
 
 private:
     QString kartonDir() const;

@@ -31,7 +31,7 @@ DomainXmlReader::XmlInfo DomainXmlReader::readConfigFile(const QString &path)
     while (!xmlReader.atEnd() && !xmlReader.hasError()) {
         QXmlStreamReader::TokenType token = xmlReader.readNext();
         if (token == QXmlStreamReader::StartElement) {
-            // qCInfo(KARTON_DEBUG) << xmlReader.name(); // prints each element
+            // qCInfo(KARTON_DEBUG) << "Current element: " << xmlReader.name(); // uncomment to print each element
             if (xmlReader.name() == QStringLiteral("domain")) {
                 info.indexId = xmlReader.attributes().value("id").toInt();
                 info.hypervisorType = xmlReader.attributes().value("type").toString();
@@ -42,6 +42,9 @@ DomainXmlReader::XmlInfo DomainXmlReader::readConfigFile(const QString &path)
             }
             if (xmlReader.name() == QStringLiteral("data") && xmlReader.attributes().hasAttribute(QStringLiteral("maxDiskStorage"))) {
                 info.maxDiskStorage = xmlReader.attributes().value("maxDiskStorage").toInt();
+            }
+            if (xmlReader.name() == QStringLiteral("data") && xmlReader.attributes().hasAttribute(QStringLiteral("screenshotPreviewPath"))) {
+                info.screenshotPreviewPath = xmlReader.attributes().value("screenshotPreviewPath").toString();
             }
             if (xmlReader.name() == QStringLiteral("disk") && xmlReader.attributes().hasAttribute(QStringLiteral("device"))) {
                 if (xmlReader.attributes().value(QStringLiteral("device")) == QStringLiteral("disk")) {

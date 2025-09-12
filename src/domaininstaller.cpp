@@ -72,6 +72,8 @@ QString DomainInstaller::generateXML(virConnectPtr conn, const DomainConfig *con
     metadata.appendChild(karton);
     QMap<QString, QString> kartonData;
     kartonData[QStringLiteral("maxDiskStorage")] = QString::number(config->maxDiskStorage() * 1024);
+    QString dataDir = QStandardPaths::writableLocation(QStandardPaths::StateLocation);
+    kartonData[QStringLiteral("screenshotPreviewPath")] = QStringLiteral("%1/previews/%2.png").arg(dataDir).arg(uuidString);
     addElementWithAttributes(document, karton, QStringLiteral("karton:data"), QString(), kartonData);
 
     // metadata->LIBOSINFO

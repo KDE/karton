@@ -21,6 +21,7 @@ DomainConfig::DomainConfig(QObject *parent)
     , m_xmlConfigPath(QString())
     , m_isoDiskPath(QString())
     , m_virtualDiskPath(QString())
+    , m_screenshotPreviewPath(QString())
     , m_autostart(false)
 {
 }
@@ -41,6 +42,7 @@ DomainConfig::DomainConfig(const DomainConfigData &data)
                    data.xmlConfigPath,
                    data.isoDiskPath,
                    data.virtualDiskPath,
+                   data.screenshotPreviewPath,
                    data.autostart,
                    data.parent)
 {
@@ -61,6 +63,7 @@ DomainConfig::DomainConfig(const QString &hypervisorType,
                            const QString &xmlConfigPath,
                            const QString &isoDiskPath,
                            const QString &virtualDiskPath,
+                           const QString &screenshotPreviewPath,
                            bool autostart,
                            QObject *parent)
     : QObject(parent)
@@ -79,6 +82,7 @@ DomainConfig::DomainConfig(const QString &hypervisorType,
     , m_xmlConfigPath(xmlConfigPath)
     , m_isoDiskPath(isoDiskPath)
     , m_virtualDiskPath(virtualDiskPath)
+    , m_screenshotPreviewPath(screenshotPreviewPath)
     , m_autostart(autostart)
 {
 }

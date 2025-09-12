@@ -80,13 +80,13 @@ QString Domain::uuidString(virDomainPtr domainPtr)
 
 void Domain::savePreviewFrame(QImage frame)
 {
-    qCDebug(KARTON_DEBUG) << "SavePreviewPath:" << previewPath();
+    qCDebug(KARTON_DEBUG) << "SavePreviewPath:" << this->config()->screenshotPreviewPath();
     QDir baseDir(kartonDir());
     if (!baseDir.mkpath(QStringLiteral("previews"))) {
         qCCritical(KARTON_DEBUG) << "Failed to create preview directory: " << kartonDir();
         return;
     }
-    frame.save(previewPath());
+    frame.save(this->config()->screenshotPreviewPath());
 
     Q_EMIT previewChanged();
 }
@@ -94,8 +94,4 @@ QString Domain::kartonDir() const
 {
     QString dataDir = QStandardPaths::writableLocation(QStandardPaths::StateLocation);
     return QStringLiteral("%1").arg(dataDir);
-}
-QString Domain::previewPath() const
-{
-    return QStringLiteral("%1/previews/%2.png").arg(kartonDir()).arg(m_config->uuid());
 }
