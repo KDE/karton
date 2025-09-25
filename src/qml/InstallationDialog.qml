@@ -13,6 +13,7 @@ Kirigami.Dialog {
     title: i18n("Add New Virtual Machine")
     id: addDomainDialog
     padding: Kirigami.Units.largeSpacing
+    preferredWidth: Kirigami.Units.gridUnit * 32
     property bool showError: false
     modal: true
 
@@ -51,17 +52,14 @@ Kirigami.Dialog {
         }
     ]
 
-    preferredWidth: parent.width - Kirigami.Units.gridUnit * 10
-    preferredHeight: parent.height - Kirigami.Units.gridUnit * 10
-
     ColumnLayout {
         spacing: Kirigami.Units.largeSpacing
 
         Kirigami.InlineMessage {
             Layout.fillWidth: true
-            Layout.leftMargin: Kirigami.Units.gridUnit * 2
-            Layout.rightMargin: Kirigami.Units.gridUnit * 2
             text: i18nc("Error message", "Please fill in all required fields")
+            Layout.leftMargin: Kirigami.Units.gridUnit * 1
+            Layout.rightMargin: Kirigami.Units.gridUnit * 1
             type: Kirigami.MessageType.Error
             visible: addDomainDialog.showError
         }
@@ -186,24 +184,28 @@ Kirigami.Dialog {
 
         FormCard.FormCard {
             Layout.bottomMargin: Kirigami.Units.largeSpacing
-            FormCard.FormSpinBoxDelegate {
-                id: memorySpinBox
-                label: i18nc("@label:spinbox, RAM", "Memory (GB)")
-                value: 4
-                from: 1
-                to: 64
-                Layout.fillWidth: true
-            }
 
-            FormCard.FormDelegateSeparator {}
-
-            FormCard.FormSpinBoxDelegate {
-                id: storageSpinBox
-                label: i18nc("@label:spinbox", "Disk Storage (GB)")
-                from: 1
-                to: 2048
-                value: 4
+            RowLayout {
                 Layout.fillWidth: true
+                uniformCellSizes: true
+
+                FormCard.FormSpinBoxDelegate {
+                    id: memorySpinBox
+                    label: i18nc("@label:spinbox, RAM", "Memory (GB)")
+                    value: 4
+                    from: 1
+                    to: 64
+                    Layout.fillWidth: true
+                }
+
+                FormCard.FormSpinBoxDelegate {
+                    id: storageSpinBox
+                    label: i18nc("@label:spinbox", "Disk Storage (GB)")
+                    from: 1
+                    to: 2048
+                    value: 4
+                    Layout.fillWidth: true
+                }
             }
 
             FormCard.FormDelegateSeparator {}
