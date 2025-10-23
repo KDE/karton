@@ -9,19 +9,33 @@ import org.kde.karton
 Kirigami.ApplicationWindow {
     id: viewerWindow
     required property Domain domain
-
+    
     title: domain ? i18nc("%1 is the name of the virtual machine", "VM Viewer - %1", domain.config.name) : i18n("VM Viewer")
-
+    
     width: Kirigami.Units.gridUnit * 53
     height: Kirigami.Units.gridUnit * 36
 
     onClosing: {
         domainViewer.saveFrameToDomain();
+        domainViewer.disconnectFromSpice();
+    }
+
+    Connections {
+        target: domainViewer
+        function onImplicitWidthChanged() {
+            if (domainViewer.implicitWidth > 0)
+                viewerWindow.width = domainViewer.implicitWidth / domainViewer.dprHelper.devicePixelRatio
+        }
+        function onImplicitHeightChanged() {
+            if (domainViewer.implicitHeight > 0)
+                viewerWindow.height = domainViewer.implicitHeight / domainViewer.dprHelper.devicePixelRatio
+                                      + pageStack.globalToolBar.height
+        }
     }
 
     pageStack.initialPage: Kirigami.Page {
         title: viewerWindow.title
-        padding: 0
+        padding: 0 
 
         actions: [
             Kirigami.Action {
@@ -44,10 +58,13 @@ Kirigami.ApplicationWindow {
             }
 
             // Pre-cancel out scaling, and show VM pixels at 1:1
-            width: implicitWidth / dprHelper.devicePixelRatio
-            height: implicitHeight / dprHelper.devicePixelRatio
+            // falls back to a default size (hardcoded) until the first GL scanout sets implicitWidth/Height.
+            // fixes 0 width/height bug.
+            width: implicitWidth > 0 ? implicitWidth / dprHelper.devicePixelRatio : Kirigami.Units.gridUnit * 56.55
+            height: implicitHeight > 0 ? implicitHeight / dprHelper.devicePixelRatio : Kirigami.Units.gridUnit * 36
 
             domain: viewerWindow.domain
+
             focus: true
             activeFocusOnTab: true
             onActiveFocusChanged: {
