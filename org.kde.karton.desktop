@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: CC0-1.0
 # SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
 # SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
+# SPDX-FileCopyrightText: 2025 Hadi Chokr <hadichokr@icloud.com>
 
 [Desktop Entry]
-Categories=System;Tools;
+Categories=System;Emulator;
 Exec=karton
 Icon=karton_logo
 Terminal=false
