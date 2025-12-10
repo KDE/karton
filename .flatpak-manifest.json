@@ -5,7 +5,9 @@
     "runtime-version": "6.9",
     "sdk": "org.kde.Sdk",
     "command": "karton",
-    "tags": ["nightly"],
+    "tags": [
+        "nightly"
+    ],
     "rename-icon": "karton_logo",
     "finish-args": [
         "--device=all",
@@ -57,8 +59,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz",
-                            "sha256": "352133ec9545da76f77e70ccb48c9d7e5324d67f6474744647a7ed382b5e05fa",
+                            "url": "https://github.com/thom311/libnl/releases/download/libnl3_12_0/libnl-3.12.0.tar.gz",
+                            "sha256": "fc51ca7196f1a3f5fdf6ffd3864b50f4f9c02333be28be4eeca057e103c0dd18",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 1684,
@@ -80,7 +82,7 @@
                         {
                             "type": "archive",
                             "url": "https://github.com/lloyd/yajl/archive/refs/tags/2.1.0.tar.gz",
-                            "sha256" : "3fb73364a5a30efe615046d07e6db9d09fd2b41c763c5f7d3bfb121cd5c5ac5a",
+                            "sha256": "3fb73364a5a30efe615046d07e6db9d09fd2b41c763c5f7d3bfb121cd5c5ac5a",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 5283,
@@ -99,8 +101,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-1.3.2.tar.bz2",
-                            "sha256": "e24eb88b8ce7db3b7ca6eb80115dd1284abc5ec32a8deccfed2224fc2532b9fd",
+                            "url": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-1.3.7.tar.bz2",
+                            "sha256": "b47d3ac19d3549e54a05d0019a6c400674da716123858cfdb6d3bdd70a66c702",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 1740,
@@ -116,8 +118,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.1.tar.gz",
-                            "sha256": "750f7e57b81407a25b707867e90d7ee80aeb53bf515b114fc218f3c78dc9a6e8",
+                            "url": "https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.4.tar.gz",
+                            "sha256": "7988641deae8463303b6273d7af98ece09111c385d4c9134a142a5fad3cdfef8",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 155452,
@@ -141,8 +143,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://libvirt.org/sources/libvirt-9.0.0.tar.xz",
-                            "sha256": "deca5cff1b7baac297bca9663907c61f71a47183371dc7ac019c107806d5435a",
+                            "url": "https://libvirt.org/sources/libvirt-11.10.0.tar.xz",
+                            "sha256": "66154fee836235678b712676b2589c45f66e3d6a8721ee0697c9f20a66cad0d8",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 13830,
@@ -194,8 +196,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://www.spice-space.org/download/releases/spice-protocol-0.14.3.tar.xz",
-                            "sha256": "f986e5bc2a1598532c4897f889afb0df9257ac21c160c083703ae7c8de99487a",
+                            "url": "https://www.spice-space.org/download/releases/spice-protocol-0.14.5.tar.xz",
+                            "sha256": "baf58449f6e89d19f475899ad5fb9196fdc46c03cc53233f4e39cf2978f9cff7",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 14892,
@@ -235,8 +237,8 @@
                     "sources": [
                         {
                             "type": "file",
-                            "url": "https://files.pythonhosted.org/packages/5d/bc/1e58593167fade7b544bfe9502a26dc860940a79ab306e651e7f13be68c2/pyparsing-2.4.6-py2.py3-none-any.whl",
-                            "sha256": "c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec",
+                            "url": "https://files.pythonhosted.org/packages/f2/a5/181488fc2b9d093e3972d2a472855aae8a03f000592dbfce716a512b3359/pyparsing-3.2.5.tar.gz",
+                            "sha256": "2df8d5b7b2802ef88e8d016a2eb9c7aeaa923529cd251ed0fe4608275d4105b6",
                             "x-checker-data": {
                                 "type": "pypi",
                                 "name": "pyparsing"
@@ -272,8 +274,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://www.spice-space.org/download/releases/spice-0.15.1.tar.bz2",
-                            "sha256": "ada9af67ab321916bd7eb59e3d619a4a7796c08a28c732edfc7f02fc80b1a37a",
+                            "url": "https://www.spice-space.org/download/releases/spice-0.16.0.tar.bz2",
+                            "sha256": "0a6ec9528f05371261bbb2d46ff35e7b5c45ff89bb975a99af95a5f20ff4717d",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 4871,
@@ -333,7 +335,7 @@
                 },
                 {
                     "name": "usbredir",
-                    "buildsystem" : "meson",
+                    "buildsystem": "meson",
                     "config-opts": [
                         "-Dtools=disabled"
                     ],
@@ -453,8 +455,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.kde.org/stable/kirigami-addons/kirigami-addons-1.9.0.tar.xz",
-                    "sha256": "21314a91f26b1c962def3fd7ff2e762d3358b075f63f4d7e0144fb2c63b7ebc7",
+                    "url": "https://download.kde.org/stable/kirigami-addons/kirigami-addons-1.10.0.tar.xz",
+                    "sha256": "c98f92bf7c452e12f6dc403404215413db3959fe904ad830ead0db6bb09b3d11",
                     "x-checker-data": {
                         "type": "anitya",
                         "project-id": 242933,
