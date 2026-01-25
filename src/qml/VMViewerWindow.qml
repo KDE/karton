@@ -9,9 +9,9 @@ import org.kde.karton
 Kirigami.ApplicationWindow {
     id: viewerWindow
     required property Domain domain
-    
+
     title: domain ? i18nc("%1 is the name of the virtual machine", "VM Viewer - %1", domain.config.name) : i18n("VM Viewer")
-    
+
     width: Kirigami.Units.gridUnit * 53
     height: Kirigami.Units.gridUnit * 36
 
@@ -21,7 +21,7 @@ Kirigami.ApplicationWindow {
 
     pageStack.initialPage: Kirigami.Page {
         title: viewerWindow.title
-        padding: 0 
+        padding: 0
 
         actions: [
             Kirigami.Action {
