@@ -116,8 +116,8 @@ private:
     QString m_password;
     bool m_connected = false;
 
-    int m_imageWidth;
-    int m_imageHeight;
+    uint m_imageWidth = 0;
+    uint m_imageHeight = 0;
     QImage m_frame;
     uchar *m_frameBuffer = nullptr;
     QMutex m_frameLock;
