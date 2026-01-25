@@ -86,6 +86,8 @@ public:
         }
     }
 
+    Q_INVOKABLE void updateImplicitDimensions();
+
 Q_SIGNALS:
     void domainChanged();
     void frameUpdated();

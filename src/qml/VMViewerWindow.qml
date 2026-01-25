@@ -39,6 +39,11 @@ Kirigami.ApplicationWindow {
         DomainViewer {
             id: domainViewer
 
+            property DevicePixelRatioHelper dprHelper: DevicePixelRatioHelper {
+                window: domainViewer.Window.window
+                onDevicePixelRatioChanged: domainViewer.updateImplicitDimensions()
+            }
+
             domain: viewerWindow.domain
             focus: true
             activeFocusOnTab: true
