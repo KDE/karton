@@ -41,8 +41,11 @@ Kirigami.ApplicationWindow {
 
             property DevicePixelRatioHelper dprHelper: DevicePixelRatioHelper {
                 window: domainViewer.Window.window
-                onDevicePixelRatioChanged: domainViewer.updateImplicitDimensions()
             }
+
+            // Pre-cancel out scaling, and show VM pixels at 1:1
+            width: implicitWidth / dprHelper.devicePixelRatio
+            height: implicitHeight / dprHelper.devicePixelRatio
 
             domain: viewerWindow.domain
             focus: true

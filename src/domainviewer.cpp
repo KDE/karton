@@ -233,8 +233,8 @@ void DomainViewer::display_primary_create_callback(SpiceChannel *channel,
 
 void DomainViewer::updateImplicitDimensions()
 {
-    setImplicitWidth(m_imageWidth / window()->effectiveDevicePixelRatio());
-    setImplicitHeight(m_imageHeight / window()->effectiveDevicePixelRatio());
+    setImplicitWidth(m_imageWidth);
+    setImplicitHeight(m_imageHeight);
 }
 
 void DomainViewer::display_invalidate_callback(SpiceDisplayChannel *channel, gint x, gint y, gint width, gint height, gpointer user_data)
