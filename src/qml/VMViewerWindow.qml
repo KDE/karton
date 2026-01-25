@@ -39,13 +39,7 @@ Kirigami.ApplicationWindow {
         DomainViewer {
             id: domainViewer
 
-            anchors.centerIn: parent
             domain: viewerWindow.domain
-
-            width: Kirigami.Units.gridUnit * 56.55
-            height: Kirigami.Units.gridUnit * 36 // TODO: expose m_imageStuff to create window from viewer size.
-            scale: Math.min(parent.width / width, parent.height / height)
-
             focus: true
             activeFocusOnTab: true
             onActiveFocusChanged: {
