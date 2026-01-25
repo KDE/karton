@@ -371,7 +371,7 @@ void DomainViewer::wheelEvent(QWheelEvent *event)
     }
 
     if (angleDelta.x() > 0) { // scroll right
-        // TODO: find horizontol in spice protocol
+        // TODO: find horizontal in spice protocol
     } else if (angleDelta.x() < 0) { // scroll left
     }
 
