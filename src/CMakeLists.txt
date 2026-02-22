@@ -2,6 +2,8 @@
 # SPDX-FileCopyrightText: 2024 Aaron Rainbolt <arraybolt3@gmail.com>
 # SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
+add_definitions(-DTRANSLATION_DOMAIN=\"karton\")
+
 add_executable(karton)
 
 ecm_add_qml_module(karton
@@ -63,6 +65,7 @@ target_link_libraries(karton
     Qt6::Xml
     Qt6::Multimedia
     KF6::I18n
+    KF6::I18nQml
     KF6::CoreAddons
     KF6::IconThemes
     Libvirt::Libvirt
