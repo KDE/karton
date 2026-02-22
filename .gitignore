@@ -78,3 +78,4 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+/.flatpak-builder
