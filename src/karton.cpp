@@ -288,7 +288,7 @@ bool Karton::deleteDomain(const Domain *domain, const bool deleteDisk)
     int result = virDomainUndefine(domainPtr);
 
     if (result < 0) {
-        QString errorMsg = QStringLiteral("Failed to undefine domain: %1").arg(domain->config()->name());
+        QString errorMsg = i18nc("%1 is the name of the domain", "Failed to undefine domain: %1", domain->config()->name());
         qCWarning(KARTON_DEBUG) << errorMsg;
         Q_EMIT errorOccurred(errorMsg);
         return false;
@@ -389,7 +389,7 @@ bool Karton::ejectDisk(const Domain *domain)
     virDomainPtr domainPtr = domain->domainPtr();
 
     if (!virDomainIsActive(domainPtr)) {
-        QString errorMsg = QStringLiteral("Cannot eject disk: domain '%1' is not active").arg(domain->config()->name());
+        QString errorMsg = i18nc("%1 is the name of the domain", "Cannot eject disk: domain '%1' is not active", domain->config()->name());
         qCWarning(KARTON_DEBUG) << errorMsg;
         Q_EMIT errorOccurred(errorMsg);
         return false;
@@ -407,7 +407,7 @@ bool Karton::ejectDisk(const Domain *domain)
     int result = virDomainUpdateDeviceFlags(domainPtr, ejectXml.toUtf8().constData(), VIR_DOMAIN_AFFECT_LIVE | VIR_DOMAIN_AFFECT_CONFIG);
 
     if (result < 0) {
-        QString errorMsg = QStringLiteral("Failed to eject ISO disk from domain: %1").arg(domain->config()->name());
+        QString errorMsg = i18nc("%1 is the name of the domain", "Failed to eject ISO disk from domain: %1", domain->config()->name());
         qCWarning(KARTON_DEBUG) << errorMsg;
         Q_EMIT errorOccurred(errorMsg);
         return false;

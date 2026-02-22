@@ -87,7 +87,8 @@ Kirigami.Dialog {
             Dialogs.FileDialog {
                 id: fileDialog
                 title: i18nc("@label:filedialog", "Choose a disk image")
-                nameFilters: ["Disk images (*.qcow2 *.raw *.img *.iso *.vdi *.vmdk)"]
+                nameFilters: [i18nc("name filter for the file dialog",
+                                    "Disk images (*.qcow2 *.raw *.img *.iso *.vdi *.vmdk)")]
                 onAccepted: {
                     diskImageField.text = fileDialog.selectedFile.toString().replace("file://", "");
                     let shortOsId = getShortOsId(diskImageField.text);

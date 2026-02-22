@@ -174,7 +174,7 @@ Kirigami.ScrollablePage {
     }
     Kirigami.Dialog {
         id: deleteConfirmationDialog
-        title: i18nc("Confirm deleting %1 (virtual machine name)", "Delete '%1'?", 
+        title: i18nc("Confirm deleting %1 (virtual machine name)", "Delete '%1'?",
             deleteConfirmationDialog.domain ? deleteConfirmationDialog.domain.config.name : "")
 
         padding: Kirigami.Units.largeSpacing
