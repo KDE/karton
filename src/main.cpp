@@ -9,7 +9,6 @@
 #include <KLocalizedContext>
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
-#include <KirigamiAddons/App/KirigamiApp>
 #include <KirigamiAddons/App/KirigamiAppDefaults>
 #include <QApplication>
 #include <QIcon>

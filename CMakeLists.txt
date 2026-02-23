@@ -45,6 +45,9 @@ find_package(KF6 REQUIRED COMPONENTS
     QQC2DesktopStyle
     IconThemes
 )
+
+find_package(KF6KirigamiAddons 1.11.0 REQUIRED)
+
 install(FILES
     img/karton_logo.svg
     DESTINATION ${KDE_INSTALL_ICONDIR}/hicolor/scalable/apps

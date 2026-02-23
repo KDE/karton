@@ -68,6 +68,7 @@ target_link_libraries(karton
     KF6::I18nQml
     KF6::CoreAddons
     KF6::IconThemes
+    KirigamiApp
     Libvirt::Libvirt
     Spiceglib::Spiceglib
     Libosinfo::Libosinfo
