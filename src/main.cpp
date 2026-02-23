@@ -5,24 +5,15 @@
 #include <libvirt/libvirt.h>
 
 #include <KAboutData>
-#include <KIconTheme>
-#include <KLocalizedContext>
 #include <KLocalizedQmlContext>
 #include <KLocalizedString>
 #include <KirigamiAddons/App/KirigamiAppDefaults>
 #include <QApplication>
 #include <QIcon>
 #include <QQmlApplicationEngine>
-#include <QQuickStyle>
-#include <QUrl>
 #include <QtQml>
-#include <iostream>
 
-#include "domainconfig.h"
-#include "karton.h"
 #include "karton_debug.h"
-#include "osinfoconfig.h"
-#include "vmlistmodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +21,7 @@ int main(int argc, char *argv[])
     KirigamiAppDefaults::apply(&app);
 
     KLocalizedString::setApplicationDomain("karton");
+
     KAboutData about(QStringLiteral("karton"),
                      i18nc("Application name", "Karton"),
                      QStringLiteral("1.0"),
