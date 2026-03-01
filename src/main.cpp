@@ -14,6 +14,7 @@
 #include <QtQml>
 
 #include "karton_debug.h"
+#include "karton_version.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
 
     KAboutData about(QStringLiteral("karton"),
                      i18nc("Application name", "Karton"),
-                     QStringLiteral("1.0"),
+                     QStringLiteral(KARTON_VERSION_STRING),
                      i18nc("Application description", "Manage and run virtual machines with ease"),
                      KAboutLicense::GPL,
                      i18nc("Copyright statement", "(C) KDE"));

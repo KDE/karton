@@ -4,6 +4,10 @@
 
 add_definitions(-DTRANSLATION_DOMAIN=\"karton\")
 
+ecm_setup_version(${CMAKE_PROJECT_VERSION}
+    VARIABLE_PREFIX KARTON
+    VERSION_HEADER karton_version.h)
+
 add_executable(karton)
 
 ecm_add_qml_module(karton

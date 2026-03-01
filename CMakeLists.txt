@@ -3,7 +3,7 @@
 # SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
 cmake_minimum_required(VERSION 3.20)
-project(karton)
+project(karton VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,6 +21,7 @@ include(ECMQmlModule)
 include(ECMQtDeclareLoggingCategory)
 include(KDEClangFormat)
 include(KDEGitCommitHooks)
+include(ECMSetupVersion)
 
 find_package(Qt6 REQUIRED COMPONENTS
     Core
