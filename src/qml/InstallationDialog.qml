@@ -19,7 +19,7 @@ Kirigami.Dialog {
     function getShortOsId(path) {
         return OsinfoConfig.getShortIdFromId(OsinfoConfig.getOsIdFromDisk(path));
     }
-    
+
     onOpened: {
         nameField.forceActiveFocus()
     }
@@ -29,8 +29,8 @@ Kirigami.Dialog {
             text: i18nc("verb, creation button for a new VM", "Create")
             icon.name: "dialog-ok"
             onTriggered: {
-                if (nameField.text.trim() === "" 
-                    || diskImageField.text.trim() === "" 
+                if (nameField.text.trim() === ""
+                    || diskImageField.text.trim() === ""
                     || !OsinfoConfig.getOsVariants().includes(osField.editText.trim())) {
                     showError = true;
                     return;
@@ -49,15 +49,9 @@ Kirigami.Dialog {
             }
         }
     ]
-    
+
     preferredWidth: parent.width - Kirigami.Units.gridUnit * 10
     preferredHeight: parent.height - Kirigami.Units.gridUnit * 10
-    onAccepted: {
-        console.log("VM Name:", nameField.text);
-        console.log("VM Type:", vmTypeComboBox.currentText);
-        showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Created VM: %1", nameField.text));
-    }
-        
 
     ColumnLayout {
         spacing: Kirigami.Units.largeSpacing
@@ -80,10 +74,10 @@ Kirigami.Dialog {
                 placeholderText: i18n("Enter VM Name")
                 Layout.fillWidth: true
                 validator: RegularExpressionValidator {
-                    regularExpression: /^[^\s]+$/ 
+                    regularExpression: /^[^\s]+$/
                 }
             }
-            
+
             Dialogs.FileDialog {
                 id: fileDialog
                 title: i18nc("@label:filedialog", "Choose a disk image")
@@ -108,19 +102,18 @@ Kirigami.Dialog {
                 background: null
                 contentItem: RowLayout {
                     Layout.fillWidth: true
-                    
+
                     Controls.TextField {
                         id: diskImageField
                         Layout.fillWidth: true
                         placeholderText: i18n("Select a disk image")
                         readOnly: true
                     }
-                    
+
                     Controls.Button {
                         text: i18nc("verb, look for a file in explorer", "Browse")
                         onClicked: {
                             fileDialog.open();
-
                         }
                     }
                 }
@@ -138,38 +131,56 @@ Kirigami.Dialog {
                     Controls.ComboBox {
                         id: osField
                         Layout.fillWidth: true
-                        model: OsinfoConfig.getOsVariants().filter((osVariant) => {
-                            return osVariant.startsWith(osTextField.displayText);
-                        })
                         editable: true
-                        currentIndex: -1 // start empty
-                        
-                        onActivated: (index) => {
-                            osTextField.text = model[index];
-                            currentIndex = index;
-                        }
+                        currentIndex: -1
 
                         contentItem: Controls.TextField {
                             id: osTextField
                             placeholderText: i18n("Select or enter an OS variant")
                             background: Item {}
-
-                            onTextEdited: {
-                                osField.popup.open();
-                            }
+                            onTextEdited: suggestionsPopup.updateSuggestions()
                             onActiveFocusChanged: {
                                 if (activeFocus) {
-                                    osField.popup.open();
+                                    suggestionsPopup.updateSuggestions();
+                                } else {
+                                    suggestionsPopup.close();
                                 }
                             }
                         }
-                        popup.height: Math.max(Kirigami.Units.gridUnit, // minimum height
-                                               Math.min(popup.contentItem.contentHeight, // implicit height 
-                                                        addDomainDialog.height - osField.mapToGlobal(0, osField.height).y)) // height to bottom of window
+
+                        // triggers on text edits in OS variant selection
+                        Controls.Popup {
+                            id: suggestionsPopup
+                            parent: osField
+                            y: osField.height
+                            width: osField.width
+                            padding: 0
+                            implicitHeight: Math.min(listView.contentHeight, Kirigami.Units.gridUnit * 10)
+
+                            function updateSuggestions() {
+                                const filterText = osTextField.text.toLowerCase();
+                                listView.model = OsinfoConfig.getOsVariants().filter((osVariant) => osVariant.toLowerCase().includes(filterText));
+                                listView.model.length > 0 ? open() : close();
+                            }
+
+                            contentItem: ListView {
+                                id: listView
+                                implicitHeight: contentHeight
+                                clip: true
+                                delegate: Controls.ItemDelegate {
+                                    width: ListView.view.width
+                                    text: modelData
+                                    onClicked: {
+                                        osTextField.text = modelData;
+                                        suggestionsPopup.close();
+                                        osTextField.forceActiveFocus();
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-        
         }
 
         FormCard.FormCard {
@@ -180,7 +191,6 @@ Kirigami.Dialog {
                 value: 4
                 from: 1
                 to: 64
-
                 Layout.fillWidth: true
             }
 
@@ -192,8 +202,6 @@ Kirigami.Dialog {
                 from: 1
                 to: 2048
                 value: 4
-
-
                 Layout.fillWidth: true
             }
 
@@ -205,11 +213,8 @@ Kirigami.Dialog {
                 from: 1
                 to: 16
                 value: 2
-
-
                 Layout.fillWidth: true
             }
         }
     }
-    
 }
