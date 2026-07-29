@@ -212,7 +212,7 @@ This action cannot be undone.`,
                 onTriggered: {
                     if (deleteConfirmationDialog.domain) {
                         Karton.deleteDomain(deleteConfirmationDialog.domain, false);
-                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Undefining %1!", deleteConfirmationDialog.domain.config.name));
+                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Deleted VM: %1", deleteConfirmationDialog.domain.config.name));
                         deleteConfirmationDialog.domain = null;
                         deleteConfirmationDialog.close();
                     }
@@ -225,7 +225,7 @@ This action cannot be undone.`,
                 onTriggered: {
                     if (deleteConfirmationDialog.domain) {
                         Karton.deleteDomain(deleteConfirmationDialog.domain, true);
-                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Undefining %1!", deleteConfirmationDialog.domain.config.name));
+                        showPassiveNotification(i18nc("%1 is the virtual machine name", "Deleted VM: %1", deleteConfirmationDialog.domain.config.name));
                         deleteConfirmationDialog.domain = null;
                         deleteConfirmationDialog.close();
                     }
