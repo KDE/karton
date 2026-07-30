@@ -3,27 +3,23 @@
 
 #pragma once
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
 #include <linux/input-event-codes.h>
 #include <spice-client.h>
 
 #include <QHash>
-#include <QImage>
-#include <QMutex>
 #include <QObject>
 #include <QQuickItem>
 #include <QSGNode>
-#include <QSGTexture>
 
 #include <QAudioFormat>
 #include <QAudioSink>
 #include <QIODevice>
 
+#include <memory>
+
 #include "commandrunner.h"
 #include "domain.h"
+#include "spicedisplayrenderer.h"
 
 class DomainViewer : public QQuickItem
 {
@@ -51,8 +47,6 @@ public:
     Q_INVOKABLE void disconnectFromSpice();
 
     void stopAudio();
-
-    void updateTexture();
 
     void checkChannelStatus();
 
@@ -100,15 +94,16 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     void handleHostPort(int exitCode, const QString &output);
+    void handleRendererFrameSizeChanged();
 
 private:
+    enum class RenderMode {
+        GlScanout,
+        PrimarySurface,
+    };
+
     static void channel_new_callback(SpiceSession *session, SpiceChannel *channel, gpointer user_data);
-    static void gl_draw_callback(SpiceDisplayChannel *channel, guint x, guint y, guint width, guint height, gpointer user_data);
-    void handleGlScanout(const SpiceGlScanout *scanout);
-    void createTextureFromScanout(const SpiceGlScanout *scanout);
-    void cleanupEGLImage();
-    void cleanupEGLResources();
-    void captureFromSceneGraph();
+    void attachDisplayChannel(SpiceChannel *channel);
     static uint8_t evdevToPcXt(uint32_t evdev_scancode);
 
     static void playback_start_callback(SpicePlaybackChannel *channel, gint format, gint channels, gint rate, gpointer user_data);
@@ -122,16 +117,9 @@ private:
     int m_port;
     QString m_password;
     bool m_connected = false;
+    RenderMode m_renderMode = RenderMode::GlScanout;
 
-    int m_imageWidth;
-    int m_imageHeight;
-    SpiceGlScanout m_scanout;
-    bool m_hasScanout;
-    EGLImageKHR m_eglImage = EGL_NO_IMAGE_KHR;
-    PFNEGLDESTROYIMAGEKHRPROC m_eglDestroyImageKHR = nullptr;
-    PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_glEGLImageTargetTexture2DOES = nullptr;
-    PFNEGLCREATEIMAGEKHRPROC m_eglCreateImageKHR = nullptr;
-    GLuint m_texId;
+    std::unique_ptr<SpiceDisplayRenderer> m_renderer;
 
     SpiceSession *m_session = nullptr;
     SpiceChannel *m_display_channel = nullptr;

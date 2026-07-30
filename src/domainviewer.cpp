@@ -3,11 +3,6 @@
 
 #include "domainviewer.h"
 
-#include <QOpenGLContext>
-#include <QOpenGLFunctions>
-#include <QSGSimpleTextureNode>
-
-#include <rhi/qrhi.h> // need
 #include <spice-client.h>
 
 #include <QGuiApplication>
@@ -17,7 +12,9 @@
 
 #include "domain.h"
 #include "glib.h"
+#include "glscanoutrenderer.h"
 #include "karton_debug.h"
+#include "primarysurfacerenderer.h"
 
 #include "evdev_to_xtkbd_map.h"
 
@@ -30,12 +27,6 @@ DomainViewer::DomainViewer(QQuickItem *parent)
     , m_port(5900)
     , m_password(QString())
     , m_connected(false)
-    , m_imageWidth(0)
-    , m_imageHeight(0)
-    , m_scanout({})
-    , m_hasScanout(false)
-    , m_eglImage(EGL_NO_IMAGE_KHR)
-    , m_texId(0)
     , m_session(nullptr)
     , m_display_channel(nullptr)
     , m_inputs_channel(nullptr)
@@ -106,10 +97,12 @@ void DomainViewer::handleHostPort(int exitCode, const QString &output)
     m_port = url.port(); // defaults to -1 if not found
     m_spiceUri = url.toString();
 
-    if (url.toString().startsWith(QStringLiteral("spice+unix:///tmp/spice"))) {
-        qCInfo(KARTON_DEBUG) << "Detected UNIX socket. Connection parameters set.";
+    if (m_spiceUri.startsWith(QStringLiteral("spice+unix:///tmp/spice"))) {
+        qCInfo(KARTON_DEBUG) << "Detected UNIX socket. Using GL scanout rendering.";
+        m_renderMode = RenderMode::GlScanout;
     } else {
-        qCInfo(KARTON_DEBUG) << "Detected network TCP socket. Connection parameters set.";
+        qCInfo(KARTON_DEBUG) << "Detected network TCP socket. Using primary surface rendering.";
+        m_renderMode = RenderMode::PrimarySurface;
     }
 
     if (!connectToSpice()) {
@@ -161,6 +154,11 @@ void DomainViewer::disconnectFromSpice()
 {
     stopAudio();
 
+    if (m_renderer) {
+        m_renderer->detach();
+        m_renderer.reset();
+    }
+
     if (m_session) {
         spice_session_disconnect(m_session);
 
@@ -182,13 +180,7 @@ void DomainViewer::channel_new_callback(SpiceSession *session, SpiceChannel *cha
     item->checkChannelStatus(); // uncomment for channel debug msgs
     if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
         qCInfo(KARTON_DEBUG) << "SPICE display connected";
-
-        spice_channel_connect(channel);
-        item->m_display_channel = channel;
-
-        g_signal_connect(channel, "gl-draw", G_CALLBACK(gl_draw_callback), item);
-        // TODO: Might need to check if gl is enabled. Domains created by virt-manager are not accel3d by default.
-
+        item->attachDisplayChannel(channel);
     } else if (SPICE_IS_INPUTS_CHANNEL(channel)) {
         qCInfo(KARTON_DEBUG) << "SPICE: Inputs connected";
         spice_channel_connect(channel);
@@ -208,259 +200,44 @@ void DomainViewer::channel_new_callback(SpiceSession *session, SpiceChannel *cha
 
 // ========================== Display rendering  ========================
 
-void DomainViewer::gl_draw_callback(SpiceDisplayChannel *channel, guint x, guint y, guint width, guint height, gpointer user_data)
+void DomainViewer::attachDisplayChannel(SpiceChannel *channel)
 {
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
+    spice_channel_connect(channel);
+    m_display_channel = channel;
 
-    DomainViewer *item = static_cast<DomainViewer *>(user_data);
-    auto scanout = spice_display_get_gl_scanout(channel);
-    if (!scanout)
-        return;
-    item->handleGlScanout(scanout);
-    spice_display_gl_draw_done(channel); // releases the GL resource
-}
-void DomainViewer::handleGlScanout(const SpiceGlScanout *scanout)
-{
-    if (m_hasScanout && m_scanout.fd >= 0) {
-        close(m_scanout.fd);
-        m_scanout.fd = -1;
+    switch (m_renderMode) {
+    case RenderMode::GlScanout:
+        m_renderer = std::make_unique<GlScanoutRenderer>();
+        break;
+    case RenderMode::PrimarySurface:
+        m_renderer = std::make_unique<PrimarySurfaceRenderer>();
+        break;
     }
 
-    cleanupEGLImage();
+    connect(m_renderer.get(), &SpiceDisplayRenderer::frameReady, this, &QQuickItem::update);
+    connect(m_renderer.get(), &SpiceDisplayRenderer::frameSizeChanged, this, &DomainViewer::handleRendererFrameSizeChanged);
 
-    m_scanout = *scanout; // struct copy
-
-    // duplicate the file descriptor if exists
-    // we will be using the duplicate, and the original is freed by SPICE (gl_draw_done).
-    if (scanout->fd >= 0) {
-        m_scanout.fd = dup(scanout->fd);
-        if (m_scanout.fd < 0) {
-            qCWarning(KARTON_DEBUG) << "Failed to duplicate scanout FD";
-            return;
-        }
-    }
-
-    m_imageHeight = scanout->height;
-    m_imageWidth = scanout->width;
-    setImplicitWidth(m_imageWidth);
-    setImplicitHeight(m_imageHeight);
-    m_hasScanout = true;
-
-    update();
+    m_renderer->attach(SPICE_DISPLAY_CHANNEL(channel));
 }
 
-void DomainViewer::createTextureFromScanout(const SpiceGlScanout *scanout)
+void DomainViewer::handleRendererFrameSizeChanged()
 {
-    qCDebug(KARTON_DEBUG) << "=== createTextureFromScanout()";
-    qCDebug(KARTON_DEBUG) << "FD:" << scanout->fd;
-    qCDebug(KARTON_DEBUG) << "Size:" << scanout->width << "x" << scanout->height;
-    qCDebug(KARTON_DEBUG) << "Format:" << QStringLiteral("0x%1").arg(scanout->format, 0, 16);
-    qCDebug(KARTON_DEBUG) << "Stride:" << scanout->stride;
-
-    if (scanout->fd == -1) {
+    if (!m_renderer) {
         return;
     }
-
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    if (!context) {
-        qCDebug(KARTON_DEBUG) << "No current OpenGL context";
-        return;
-    }
-
-    QOpenGLFunctions *gl = context->functions();
-    if (!gl) {
-        qCDebug(KARTON_DEBUG) << "Failed to get OpenGL functions";
-        return;
-    }
-
-    // generate texture if empty
-    if (m_texId == 0) {
-        gl->glGenTextures(1, &m_texId);
-        if (m_texId == 0) { // glGenTextures modifies m_texId
-            qCDebug(KARTON_DEBUG) << "Failed to generate texture";
-            return;
-        }
-    }
-
-    // setup EGL display
-    EGLDisplay display = eglGetCurrentDisplay();
-    if (display == EGL_NO_DISPLAY) {
-        qCDebug(KARTON_DEBUG) << "Failed to get EGL display";
-        return;
-    }
-
-    EGLint attrs[] = {EGL_DMA_BUF_PLANE0_FD_EXT,
-                      scanout->fd,
-                      EGL_DMA_BUF_PLANE0_PITCH_EXT,
-                      static_cast<EGLint>(scanout->stride),
-                      EGL_DMA_BUF_PLANE0_OFFSET_EXT,
-                      0,
-                      EGL_WIDTH,
-                      static_cast<EGLint>(scanout->width),
-                      EGL_HEIGHT,
-                      static_cast<EGLint>(scanout->height),
-                      EGL_LINUX_DRM_FOURCC_EXT,
-                      static_cast<EGLint>(scanout->format),
-                      EGL_NONE};
-
-    // create egl image
-    if (!m_eglCreateImageKHR) {
-        m_eglCreateImageKHR = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
-        if (!m_eglCreateImageKHR) {
-            qCDebug(KARTON_DEBUG) << "eglCreateImageKHR not available";
-            return;
-        }
-    }
-    m_eglImage = m_eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_LINUX_DMA_BUF_EXT, nullptr, attrs);
-
-    if (m_eglImage == EGL_NO_IMAGE_KHR) {
-        EGLint error = eglGetError();
-        qCDebug(KARTON_DEBUG) << "Failed to create EGL image, error:" << QStringLiteral("0x%1").arg(error, 0, 16);
-        return;
-    }
-
-    gl->glBindTexture(GL_TEXTURE_2D, m_texId);
-
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // set image texture
-    if (!m_glEGLImageTargetTexture2DOES) {
-        m_glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
-        if (!m_glEGLImageTargetTexture2DOES) {
-            qCDebug(KARTON_DEBUG) << "glEGLImageTargetTexture2DOES not supported";
-            return;
-        }
-    }
-    m_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, (GLeglImageOES)m_eglImage);
-
-    GLenum glError = gl->glGetError();
-    if (glError != GL_NO_ERROR) {
-        qCDebug(KARTON_DEBUG) << "OpenGL error after glEGLImageTargetTexture2DOES:" << QStringLiteral("0x%1").arg(glError, 0, 16);
-    }
-
-    gl->glBindTexture(GL_TEXTURE_2D, 0); // unbind texture
+    const QSize size = m_renderer->frameSize();
+    setImplicitWidth(size.width());
+    setImplicitHeight(size.height());
 }
 
 // triggered by update()
 QSGNode *DomainViewer::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *)
 {
-    // create opengl texture from scanout data
-    if (m_hasScanout && m_texId == 0) {
-        createTextureFromScanout(&m_scanout);
-    }
-
-    if (!m_texId) {
-        qCDebug(KARTON_DEBUG) << "No texture available yet";
+    if (!m_renderer) {
         delete oldNode;
         return nullptr;
     }
-
-    auto *textureNode = static_cast<QSGSimpleTextureNode *>(oldNode);
-    if (!textureNode) {
-        textureNode = new QSGSimpleTextureNode();
-        textureNode->setOwnsTexture(true);
-    }
-
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    if (!context) {
-        qCDebug(KARTON_DEBUG) << "No current OpenGL context in updatePaintNode";
-        return textureNode;
-    }
-
-    QOpenGLFunctions *gl = context->functions();
-    if (gl) {
-        gl->glBindTexture(GL_TEXTURE_2D, m_texId);
-        gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        gl->glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    // loading the gl image texture onto the QSG
-    QQuickWindow::CreateTextureOptions options;
-    QRhi *rhi = window()->rhi();
-    if (!rhi) {
-        qCDebug(KARTON_DEBUG) << "No RHI available";
-        return textureNode;
-    }
-
-    QRhiTexture::Format rhiFormat = QRhiTexture::RGBA8;
-    QRhiTexture *rhiTexture = rhi->newTexture(rhiFormat, QSize(m_imageWidth, m_imageHeight));
-    if (!rhiTexture) {
-        qCDebug(KARTON_DEBUG) << "Failed to create RHI texture";
-        return textureNode;
-    }
-
-    // create native texture to be contained in RHI
-    QRhiTexture::NativeTexture nativeTex;
-    nativeTex.object = m_texId;
-    nativeTex.layout = 0;
-
-    if (!rhiTexture->createFrom(nativeTex)) {
-        qCDebug(KARTON_DEBUG) << "Failed to create RHI texture from native";
-        delete rhiTexture;
-        return textureNode;
-    }
-
-    QSGTexture *texture = window()->createTextureFromRhiTexture(rhiTexture, options);
-    if (!texture) {
-        qCDebug(KARTON_DEBUG) << "Failed to create QSG texture";
-        delete rhiTexture;
-        return textureNode;
-    }
-
-    textureNode->setTexture(texture);
-    textureNode->setRect(boundingRect());
-
-    qCDebug(KARTON_DEBUG) << m_domain->config()->name() << ": Successfully updated canvas.";
-    qCDebug(KARTON_DEBUG) << "  SPICE Graphics URI: " << m_spiceUri;
-    qCDebug(KARTON_DEBUG) << "  Texture ID:" << m_texId;
-    qCDebug(KARTON_DEBUG) << "  Size:" << m_imageWidth << "x" << m_imageHeight;
-
-    return textureNode;
-}
-
-// cleans up scanout and egl image, textures
-void DomainViewer::cleanupEGLResources()
-{
-    if (m_hasScanout && m_scanout.fd >= 0) {
-        close(m_scanout.fd);
-        m_scanout.fd = -1;
-    }
-    m_hasScanout = false;
-
-    cleanupEGLImage();
-
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    if (m_texId && context) {
-        QOpenGLFunctions *gl = context->functions();
-        if (gl) {
-            gl->glDeleteTextures(1, &m_texId);
-        }
-        m_texId = 0;
-    }
-}
-
-// for cleanup of duplicate
-void DomainViewer::cleanupEGLImage()
-{
-    if (m_eglImage != EGL_NO_IMAGE_KHR) {
-        EGLDisplay display = eglGetCurrentDisplay();
-        if (display != EGL_NO_DISPLAY) {
-            if (!m_eglDestroyImageKHR) {
-                m_eglDestroyImageKHR = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
-            }
-            if (m_eglDestroyImageKHR) {
-                m_eglDestroyImageKHR(display, m_eglImage);
-            }
-        }
-        m_eglImage = EGL_NO_IMAGE_KHR;
-    }
+    return m_renderer->updatePaintNode(window(), oldNode, boundingRect());
 }
 
 void DomainViewer::saveFrameToDomain()
@@ -607,9 +384,10 @@ void DomainViewer::wheelEvent(QWheelEvent *event)
     qreal x = event->position().x();
     qreal y = event->position().y();
 
-    if (m_imageWidth > 0 && m_imageHeight > 0 && width() > 0 && height() > 0) {
-        x = (x * m_imageWidth) / width();
-        y = (y * m_imageHeight) / height();
+    const QSize frameSize = m_renderer ? m_renderer->frameSize() : QSize();
+    if (frameSize.width() > 0 && frameSize.height() > 0 && width() > 0 && height() > 0) {
+        x = (x * frameSize.width()) / width();
+        y = (y * frameSize.height()) / height();
     }
 
     spice_inputs_channel_position(m_inputs_channel, x, y, 0, 0);
@@ -645,9 +423,10 @@ void DomainViewer::mouseMoveEvent(QMouseEvent *event)
     qreal x = event->position().x();
     qreal y = event->position().y();
 
+    const QSize frameSize = m_renderer ? m_renderer->frameSize() : QSize();
     if (width() > 0 && height() > 0) {
-        x = (x * m_imageWidth) / width();
-        y = (y * m_imageHeight) / height();
+        x = (x * frameSize.width()) / width();
+        y = (y * frameSize.height()) / height();
     }
 
     // note: theres a warning that it's deprecated, but newer version has some bug with drag.
@@ -669,9 +448,10 @@ void DomainViewer::hoverMoveEvent(QHoverEvent *event)
         qreal x = event->position().x();
         qreal y = event->position().y();
 
-        if (m_imageWidth > 0 && m_imageHeight > 0 && width() > 0 && height() > 0) {
-            x = (x * m_imageWidth) / width();
-            y = (y * m_imageHeight) / height();
+        const QSize frameSize = m_renderer ? m_renderer->frameSize() : QSize();
+        if (frameSize.width() > 0 && frameSize.height() > 0 && width() > 0 && height() > 0) {
+            x = (x * frameSize.width()) / width();
+            y = (y * frameSize.height()) / height();
         }
 
         spice_inputs_channel_position(m_inputs_channel, x, y, 0, 0);

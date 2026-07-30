@@ -26,6 +26,9 @@ target_sources(karton
     libvirtmonitor.cpp
     libvirteventloop.cpp
     domainviewer.cpp
+    spicedisplayrenderer.h
+    glscanoutrenderer.cpp
+    primarysurfacerenderer.cpp
     domaininstaller.cpp
     osinfoconfig.cpp
     domainxmlreader.cpp
