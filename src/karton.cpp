@@ -353,6 +353,7 @@ bool Karton::createDomain(const QVariantMap &config)
                                    .isoDiskPath = config.value(QStringLiteral("isoDiskPath")).toString(),
                                    .virtualDiskPath = getVirtualDiskPath(config.value(QStringLiteral("name")).toString()),
                                    .autostart = false,
+                                   .enableAccel3d = config.value(QStringLiteral("enableAccel3d"), true).toBool(),
                                    .parent = this};
 
     auto domainConfig = std::make_unique<DomainConfig>(configData);

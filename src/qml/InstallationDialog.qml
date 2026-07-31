@@ -41,7 +41,8 @@ Kirigami.Dialog {
                     isoDiskPath: diskImageField.text,
                     memoryGB: memorySpinBox.value,
                     storageGB: storageSpinBox.value,
-                    cpus: cpuSpinBox.value
+                    cpus: cpuSpinBox.value,
+                    enableAccel3d: enableAccel3dCheckBox.checked
                 };
                 Karton.createDomain(domainConfig);
                 showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Created VM: %1", nameField.text));
@@ -213,6 +214,15 @@ Kirigami.Dialog {
                 from: 1
                 to: 16
                 value: 2
+                Layout.fillWidth: true
+            }
+
+            // FormCard.FormDelegateSeparator {}
+
+            FormCard.FormCheckDelegate {
+                id: enableAccel3dCheckBox
+                text: i18nc("@option:check", "Enable hardware acceleration")
+                checked: true
                 Layout.fillWidth: true
             }
         }

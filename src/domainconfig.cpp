@@ -23,6 +23,7 @@ DomainConfig::DomainConfig(QObject *parent)
     , m_virtualDiskPath(QString())
     , m_screenshotPreviewPath(QString())
     , m_autostart(false)
+    , m_enableAccel3d(true)
 {
 }
 
@@ -44,6 +45,7 @@ DomainConfig::DomainConfig(const DomainConfigData &data)
                    data.virtualDiskPath,
                    data.screenshotPreviewPath,
                    data.autostart,
+                   data.enableAccel3d,
                    data.parent)
 {
 }
@@ -65,6 +67,7 @@ DomainConfig::DomainConfig(const QString &hypervisorType,
                            const QString &virtualDiskPath,
                            const QString &screenshotPreviewPath,
                            bool autostart,
+                           bool enableAccel3d,
                            QObject *parent)
     : QObject(parent)
     , m_hypervisorType(hypervisorType)
@@ -84,6 +87,7 @@ DomainConfig::DomainConfig(const QString &hypervisorType,
     , m_virtualDiskPath(virtualDiskPath)
     , m_screenshotPreviewPath(screenshotPreviewPath)
     , m_autostart(autostart)
+    , m_enableAccel3d(enableAccel3d)
 {
 }
 

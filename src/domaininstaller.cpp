@@ -195,12 +195,13 @@ QString DomainInstaller::generateXML(virConnectPtr conn, const DomainConfig *con
                                {.type = QStringLiteral("user"), .mac = genMac(), .source = QString(), .linkState = true, .model = QStringLiteral("virtio")});
 
     // devices->graphics element
+    const bool enableAccel3d = config->enableAccel3d();
     addGraphicsDevices(document,
                        devices,
                        {.type = QStringLiteral("spice"),
                         .autoport = QStringLiteral("yes"),
-                        .listen = QStringLiteral("socket"),
-                        .glEnable = QStringLiteral("yes"),
+                        .listen = enableAccel3d ? QStringLiteral("socket") : QStringLiteral("address"),
+                        .glEnable = enableAccel3d,
                         .uuid = uuidString});
 
     // devices->sound element
@@ -210,10 +211,9 @@ QString DomainInstaller::generateXML(virConnectPtr conn, const DomainConfig *con
     addAudioDevices(document, devices, {.id = QStringLiteral("1"), .type = QStringLiteral("spice")});
 
     // devices->video element
-    addVideoDevices(
-        document,
-        devices,
-        {.model = QStringLiteral("virtio"), .heads = QStringLiteral("1"), .primary = QStringLiteral("yes"), .enableAccel3d = QStringLiteral("yes")});
+    addVideoDevices(document,
+                    devices,
+                    {.model = QStringLiteral("virtio"), .heads = QStringLiteral("1"), .primary = QStringLiteral("yes"), .enableAccel3d = enableAccel3d});
 
     addInputDevices(document, devices, {.type = QStringLiteral("tablet"), .bus = QStringLiteral("usb")});
 
@@ -292,18 +292,24 @@ void DomainInstaller::addGraphicsDevices(QDomDocument &document, QDomElement &pa
     QDomElement graphics = document.createElement(QStringLiteral("graphics"));
     parent.appendChild(graphics);
     graphics.setAttribute(QStringLiteral("type"), config.type);
-    // graphics.setAttribute(QStringLiteral("autoport"), config.autoport);
-    graphics.setAttribute(QStringLiteral("socket"), QStringLiteral("/tmp/spice%1.sock").arg(config.uuid));
 
     QMap<QString, QString> listen;
     listen[QStringLiteral("type")] = config.listen;
-    listen[QStringLiteral("socket")] = QStringLiteral("/tmp/spice%1.sock").arg(config.uuid);
-
-    QMap<QString, QString> gl;
-    gl[QStringLiteral("enable")] = config.glEnable;
+    if (config.listen == QStringLiteral("socket")) {
+        const QString socketPath = QStringLiteral("/tmp/spice%1.sock").arg(config.uuid);
+        graphics.setAttribute(QStringLiteral("socket"), socketPath);
+        listen[QStringLiteral("socket")] = socketPath;
+    } else {
+        graphics.setAttribute(QStringLiteral("autoport"), config.autoport);
+    }
 
     addElementWithAttributes(document, graphics, QStringLiteral("listen"), QString(), listen);
-    addElementWithAttributes(document, graphics, QStringLiteral("gl"), QString(), gl);
+
+    if (config.glEnable) {
+        QMap<QString, QString> gl;
+        gl[QStringLiteral("enable")] = QStringLiteral("yes");
+        addElementWithAttributes(document, graphics, QStringLiteral("gl"), QString(), gl);
+    }
 }
 
 void DomainInstaller::addSoundDevices(QDomDocument &document, QDomElement &parent, const SoundConfig &config)
@@ -336,10 +342,11 @@ void DomainInstaller::addVideoDevices(QDomDocument &document, QDomElement &paren
     model.setAttribute(QStringLiteral("heads"), config.heads);
     model.setAttribute(QStringLiteral("primary"), config.primary);
 
-    QMap<QString, QString> acceleration;
-    acceleration[QStringLiteral("accel3d")] = config.enableAccel3d;
-
-    addElementWithAttributes(document, model, QStringLiteral("acceleration"), QString(), acceleration);
+    if (config.enableAccel3d) {
+        QMap<QString, QString> acceleration;
+        acceleration[QStringLiteral("accel3d")] = QStringLiteral("yes");
+        addElementWithAttributes(document, model, QStringLiteral("acceleration"), QString(), acceleration);
+    }
 }
 
 void DomainInstaller::addInputDevices(QDomDocument &document, QDomElement &parent, const InputConfig &config)

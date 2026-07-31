@@ -37,6 +37,7 @@ private:
 
     int m_imageWidth = 0;
     int m_imageHeight = 0;
+    uchar *m_frameBuffer = nullptr;
     QImage m_frame;
     QMutex m_frameLock;
     bool m_frameUpdated = false;

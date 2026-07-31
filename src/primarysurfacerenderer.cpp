@@ -32,6 +32,7 @@ void PrimarySurfaceRenderer::detach()
     m_channel = nullptr;
 
     QMutexLocker locker(&m_frameLock);
+    m_frameBuffer = nullptr;
     m_frame = QImage();
     m_frameUpdated = false;
 }
@@ -55,10 +56,11 @@ void PrimarySurfaceRenderer::display_primary_create_callback(SpiceChannel *chann
 
     {
         QMutexLocker locker(&self->m_frameLock);
-        // TODO: map incoming SPICE format properly instead of assuming RGB32.
-        self->m_frame = QImage(static_cast<uchar *>(imgdata), width, height, stride, QImage::Format_RGB32);
+        self->m_frameBuffer = static_cast<uchar *>(imgdata);
         self->m_imageWidth = width;
         self->m_imageHeight = height;
+        // TODO: map incoming SPICE format properly instead of assuming RGB32.
+        self->m_frame = QImage(self->m_frameBuffer, width, height, stride, QImage::Format_RGB32);
         self->m_frameUpdated = true;
     }
 
@@ -69,14 +71,19 @@ void PrimarySurfaceRenderer::display_primary_create_callback(SpiceChannel *chann
 void PrimarySurfaceRenderer::display_invalidate_callback(SpiceDisplayChannel *channel, gint x, gint y, gint width, gint height, gpointer user_data)
 {
     Q_UNUSED(channel);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
 
     auto *self = static_cast<PrimarySurfaceRenderer *>(user_data);
     {
         QMutexLocker locker(&self->m_frameLock);
+        if (self->m_frameBuffer && !self->m_frame.isNull()) {
+            // Copy from spice-glib framebuffer to the QImage to render - inefficient
+            const auto *source = reinterpret_cast<const uint *>(self->m_frameBuffer);
+            for (int row = y; row < y + height; ++row) {
+                for (int col = x; col < x + width; ++col) {
+                    self->m_frame.setPixel(col, row, source[self->m_imageWidth * row + col]);
+                }
+            }
+        }
         self->m_frameUpdated = true;
     }
 

@@ -27,6 +27,7 @@ class DomainConfig : public QObject
     Q_PROPERTY(QString virtualDiskPath READ virtualDiskPath CONSTANT)
     Q_PROPERTY(QString screenshotPreviewPath READ screenshotPreviewPath CONSTANT)
     Q_PROPERTY(bool autostart READ autostart NOTIFY autostartChanged)
+    Q_PROPERTY(bool enableAccel3d READ enableAccel3d CONSTANT)
 
 Q_SIGNALS:
     void isActiveChanged(bool active);
@@ -53,6 +54,7 @@ public:
         QString virtualDiskPath;
         QString screenshotPreviewPath;
         bool autostart;
+        bool enableAccel3d = true;
         QObject *parent = nullptr;
     };
     explicit DomainConfig(QObject *parent = nullptr);
@@ -74,6 +76,7 @@ public:
                           const QString &virtualDiskPath,
                           const QString &screenshotPreviewPath,
                           bool autostart,
+                          bool enableAccel3d = true,
                           QObject *parent = nullptr);
 
     // getters
@@ -145,6 +148,10 @@ public:
     {
         return m_autostart;
     }
+    [[nodiscard]] bool enableAccel3d() const
+    {
+        return m_enableAccel3d;
+    }
 
     void setActive(bool active);
     void setState(const QString &state);
@@ -169,4 +176,5 @@ private:
     QString m_virtualDiskPath;
     QString m_screenshotPreviewPath;
     bool m_autostart;
+    bool m_enableAccel3d;
 };

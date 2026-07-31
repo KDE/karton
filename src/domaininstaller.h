@@ -44,7 +44,7 @@ private:
         QString type;
         QString autoport;
         QString listen;
-        QString glEnable;
+        bool glEnable = false;
         QString uuid;
     };
 
@@ -62,7 +62,7 @@ private:
         QString model;
         QString heads;
         QString primary;
-        QString enableAccel3d;
+        bool enableAccel3d = false;
     };
 
     struct InputConfig {
