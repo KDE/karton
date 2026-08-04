@@ -405,13 +405,6 @@ bool Karton::ejectDisk(const Domain *domain)
 {
     virDomainPtr domainPtr = domain->domainPtr();
 
-    if (!virDomainIsActive(domainPtr)) {
-        QString errorMsg = i18nc("%1 is the name of the domain", "Cannot eject disk: domain '%1' is not active", domain->config()->name());
-        qCWarning(KARTON_DEBUG) << errorMsg;
-        Q_EMIT errorOccurred(errorMsg);
-        return false;
-    }
-
     // replaces current device with empty XML
     QString ejectXml = QStringLiteral(
         "<disk type='file' device='cdrom'>"
@@ -420,8 +413,14 @@ bool Karton::ejectDisk(const Domain *domain)
         "  <readonly/>"
         "</disk>");
 
-    // eject from both running VM and persistent config
-    int result = virDomainUpdateDeviceFlags(domainPtr, ejectXml.toUtf8().constData(), VIR_DOMAIN_AFFECT_LIVE | VIR_DOMAIN_AFFECT_CONFIG);
+    // only affect the live domain if it's running.
+    // otherwise just update the persistent config
+    unsigned int flags = VIR_DOMAIN_AFFECT_CONFIG;
+    if (virDomainIsActive(domainPtr)) {
+        flags |= VIR_DOMAIN_AFFECT_LIVE;
+    }
+
+    int result = virDomainUpdateDeviceFlags(domainPtr, ejectXml.toUtf8().constData(), flags);
 
     if (result < 0) {
         QString errorMsg = i18nc("%1 is the name of the domain", "Failed to eject ISO disk from domain: %1", domain->config()->name());
