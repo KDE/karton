@@ -4,6 +4,7 @@
 #include "osinfoconfig.h"
 
 #include "karton_debug.h"
+#include <QCollator>
 #include <QFileInfo>
 extern "C" // due to undefined references to libosinfo contents
 {
@@ -11,7 +12,8 @@ extern "C" // due to undefined references to libosinfo contents
 }
 
 OsinfoConfig::OsinfoConfig()
-    : m_loader([]() -> OsinfoLoader * {
+    : m_osList()
+    , m_loader([]() -> OsinfoLoader * {
         if (auto loader = osinfo_loader_new(); loader) {
             g_autoptr(GError) error = nullptr;
             osinfo_loader_process_default_path(loader, &error);
@@ -32,6 +34,22 @@ OsinfoConfig::OsinfoConfig()
         return nullptr;
     }())
 {
+    if (!m_db) {
+        qCCritical(KARTON_DEBUG) << "OS database not initialized";
+        return;
+    }
+
+    GObjectPtr<OsinfoOsList> list(osinfo_db_get_os_list(m_db.get()));
+    gint len = osinfo_list_get_length(OSINFO_LIST(list.get()));
+
+    for (gint i = 0; i < len; i++) {
+        OsinfoOs *os = OSINFO_OS(osinfo_list_get_nth(OSINFO_LIST(list.get()), i));
+        // const gchar *id = osinfo_entity_get_id(OSINFO_ENTITY(os));
+        const gchar *id = osinfo_product_get_short_id(OSINFO_PRODUCT(os));
+        m_osList.append(QString::fromUtf8(id));
+    }
+    QCollator order;
+    std::sort(m_osList.begin(), m_osList.end(), order);
 }
 
 OsinfoConfig::~OsinfoConfig() = default;
@@ -146,26 +164,4 @@ QString OsinfoConfig::getOsArchitecture(const QString &osId)
     }
 
     return QString::fromUtf8(os_arch);
-}
-
-QStringList OsinfoConfig::getOsVariants()
-{
-    QStringList osList;
-
-    if (!m_db) {
-        qCCritical(KARTON_DEBUG) << "OS database not initialized";
-        return osList;
-    }
-
-    GObjectPtr<OsinfoOsList> list(osinfo_db_get_os_list(m_db.get()));
-    gint len = osinfo_list_get_length(OSINFO_LIST(list.get()));
-
-    for (gint i = 0; i < len; i++) {
-        OsinfoOs *os = OSINFO_OS(osinfo_list_get_nth(OSINFO_LIST(list.get()), i));
-        // const gchar *id = osinfo_entity_get_id(OSINFO_ENTITY(os));
-        const gchar *id = osinfo_product_get_short_id(OSINFO_PRODUCT(os));
-        osList.append(QString::fromUtf8(id));
-    }
-    osList.sort();
-    return osList;
 }

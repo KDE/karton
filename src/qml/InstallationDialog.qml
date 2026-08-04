@@ -31,7 +31,7 @@ Kirigami.Dialog {
             onTriggered: {
                 if (nameField.text.trim() === ""
                     || diskImageField.text.trim() === ""
-                    || !OsinfoConfig.getOsVariants().includes(osField.editText.trim())) {
+                    || !OsinfoConfig.osList.includes(osField.editText.trim())) {
                     showError = true;
                     return;
                 }
@@ -160,7 +160,7 @@ Kirigami.Dialog {
 
                             function updateSuggestions() {
                                 const filterText = osTextField.text.toLowerCase();
-                                listView.model = OsinfoConfig.getOsVariants().filter((osVariant) => osVariant.toLowerCase().includes(filterText));
+                                listView.model = OsinfoConfig.osList.filter((osVariant) => osVariant.toLowerCase().includes(filterText));
                                 listView.model.length > 0 ? open() : close();
                             }
 

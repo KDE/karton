@@ -33,6 +33,8 @@ class OsinfoConfig : public QObject
 
             Q_DISABLE_COPY_MOVE(OsinfoConfig);
 
+    Q_PROPERTY(QStringList osList MEMBER m_osList CONSTANT)
+
 public:
     explicit OsinfoConfig();
     ~OsinfoConfig();
@@ -42,11 +44,12 @@ public:
     QString getOsIdFromShortId(const QString &short_id);
     Q_INVOKABLE QString getShortIdFromId(const QString &id);
     Q_INVOKABLE QString getOsIdFromDisk(const QString &isoDiskPath);
-    Q_INVOKABLE QStringList getOsVariants();
     QString getOsArchitecture(const QString &osId);
 
 private:
     bool initOsDb();
+
+    QStringList m_osList;
 
     GObjectPtr<OsinfoLoader> m_loader;
     GObjectPtr<OsinfoDb> m_db;
