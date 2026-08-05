@@ -122,3 +122,35 @@ void DomainConfig::setAutostart(bool autostart)
         Q_EMIT autostartChanged(autostart);
     }
 }
+
+void DomainConfig::setName(const QString &name)
+{
+    if (m_name != name) {
+        m_name = name;
+        Q_EMIT nameChanged(name);
+    }
+}
+
+void DomainConfig::setMaxRam(int maxRam)
+{
+    if (m_maxRam != maxRam) {
+        m_maxRam = maxRam;
+        Q_EMIT maxRamChanged(maxRam);
+    }
+}
+
+void DomainConfig::setCpus(int cpus)
+{
+    if (m_cpus != cpus) {
+        m_cpus = cpus;
+        Q_EMIT cpusChanged(cpus);
+    }
+}
+
+void DomainConfig::setMaxDiskStorage(int maxDiskStorage)
+{
+    if (m_maxDiskStorage != maxDiskStorage) {
+        m_maxDiskStorage = maxDiskStorage;
+        Q_EMIT maxDiskStorageChanged(maxDiskStorage);
+    }
+}

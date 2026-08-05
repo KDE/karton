@@ -8,7 +8,6 @@
 #include <QObject>
 #include <QProcess>
 #include <QQmlEngine>
-#include <QXmlStreamReader>
 
 #include "commandrunner.h"
 #include "domain.h"
@@ -56,6 +55,7 @@ public Q_SLOTS:
     Q_INVOKABLE bool viewDomain(const Domain *domain);
     Q_INVOKABLE bool forceStopDomain(const Domain *domain);
     Q_INVOKABLE bool createDomain(const QVariantMap &config);
+    Q_INVOKABLE bool editDomain(const Domain *domain, const QVariantMap &config);
     Q_INVOKABLE bool deleteDomain(const Domain *domain, const bool deleteDisk);
     Q_INVOKABLE bool ejectDisk(const Domain *domain);
 

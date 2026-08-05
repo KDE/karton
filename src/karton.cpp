@@ -10,12 +10,11 @@
 #include <QFile>
 #include <QObject>
 #include <QStandardPaths>
-#include <QXmlStreamReader>
 
 #include "domain.h"
 #include "domainconfig.h"
-#include "domaininstaller.h"
 #include "domainviewer.h"
+#include "domainxmlbuilder.h"
 #include "domainxmlreader.h"
 #include "karton_debug.h"
 #include "libvirtmonitor.h"
@@ -358,17 +357,97 @@ bool Karton::createDomain(const QVariantMap &config)
 
     auto domainConfig = std::make_unique<DomainConfig>(configData);
 
-    DomainInstaller installer;
+    DomainXmlBuilder builder;
     if (!m_commandRunner->runCommand(
             QStringLiteral("qemu-img create -f qcow2 %1 %2G").arg(domainConfig->virtualDiskPath()).arg(domainConfig->maxDiskStorage()))) {
         return false;
     }
-    if (!installer.setupDomain(m_conn, domainConfig.get())) {
+    if (!builder.setupDomain(m_conn, domainConfig.get())) {
         qCInfo(KARTON_DEBUG) << "Failed to setup domain...";
         return false;
     }
     // TODO: Use storage pool (poolcreate, gen pool xml, parse xml for location)
     refreshDomainList();
+    return true;
+}
+
+bool Karton::editDomain(const Domain *domain, const QVariantMap &config)
+{
+    virDomainPtr domainPtr = domain->domainPtr();
+    DomainConfig *domainConfig = domain->config();
+
+    if (virDomainIsActive(domainPtr)) {
+        QString errorMsg = i18nc("%1 is the name of the domain", "Cannot edit configuration while domain is running: %1", domainConfig->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+
+    const QString newName = config.value(QStringLiteral("name")).toString();
+    const int newMemoryGB = config.value(QStringLiteral("memoryGB")).toInt();
+    const int newCpus = config.value(QStringLiteral("cpus")).toInt();
+    const int newStorageGB = config.value(QStringLiteral("storageGB")).toInt();
+
+    if (newStorageGB < domainConfig->maxDiskStorage()) {
+        QString errorMsg = i18n("Disk storage cannot be shrunk");
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+
+    // weird case: must virDomainRename rather than
+    // just rewriting the <name> element and redefining (libvirt rejects that as a uuid conflict)
+    if (newName != domainConfig->name()) {
+        if (virDomainRename(domainPtr, newName.toUtf8().constData(), 0) < 0) {
+            QString errorMsg = i18nc("%1 is the old name, %2 is the new name", "Failed to rename domain %1 to %2", domainConfig->name(), newName);
+            qCWarning(KARTON_DEBUG) << errorMsg;
+            Q_EMIT errorOccurred(errorMsg);
+            return false;
+        }
+    }
+
+    char *xmlDesc = virDomainGetXMLDesc(domainPtr, VIR_DOMAIN_XML_INACTIVE);
+    if (!xmlDesc) {
+        QString errorMsg = i18nc("%1 is the name of the domain", "Failed to read configuration for domain: %1", domainConfig->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+
+    DomainXmlBuilder builder;
+    QString xmlString = builder.updateXML(QString::fromUtf8(xmlDesc), {.maxRam = newMemoryGB, .cpus = newCpus, .maxDiskStorage = newStorageGB});
+    free(xmlDesc);
+
+    // TODO: very fragile and silent. add more handling and test for this. currently cant shrink
+    // task: explore qemu cli for better ways.
+    if (newStorageGB <= domainConfig->maxDiskStorage()) {
+        QString errorMsg = i18nc("%1 is the name of the domain", "Shrinking disk size is not supported for domain: %1", domainConfig->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+    if (!m_commandRunner->runCommand(QStringLiteral("qemu-img resize %1 %2G").arg(domainConfig->virtualDiskPath()).arg(newStorageGB))) {
+        QString errorMsg = i18nc("%1 is the name of the domain", "Failed to resize disk for domain: %1", domainConfig->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+
+    virDomainPtr redefined = virDomainDefineXML(m_conn, xmlString.toStdString().c_str());
+    if (!redefined) {
+        QString errorMsg = i18nc("%1 is the name of the domain", "Failed to update configuration for domain: %1", domainConfig->name());
+        qCWarning(KARTON_DEBUG) << errorMsg;
+        Q_EMIT errorOccurred(errorMsg);
+        return false;
+    }
+    virDomainFree(redefined);
+
+    qCInfo(KARTON_DEBUG) << "Successfully updated configuration for domain:" << newName;
+
+    domainConfig->setName(newName);
+    domainConfig->setMaxRam(newMemoryGB);
+    domainConfig->setCpus(newCpus);
+    domainConfig->setMaxDiskStorage(newStorageGB);
     return true;
 }
 
@@ -405,13 +484,16 @@ bool Karton::ejectDisk(const Domain *domain)
 {
     virDomainPtr domainPtr = domain->domainPtr();
 
-    // replaces current device with empty XML
-    QString ejectXml = QStringLiteral(
-        "<disk type='file' device='cdrom'>"
-        "  <driver name='qemu' type='raw'/>"
-        "  <target dev='sda' bus='sata'/>"
-        "  <readonly/>"
-        "</disk>");
+    // replaces the current device with the same drive minus its source, i.e. empty
+    DomainXmlBuilder builder;
+    QString ejectXml = builder.generateDiskXML({.diskType = QStringLiteral("file"),
+                                                .device = QStringLiteral("cdrom"),
+                                                .driver = QStringLiteral("qemu"),
+                                                .format = QStringLiteral("raw"),
+                                                .sourcePath = QString(),
+                                                .target = QStringLiteral("sda"),
+                                                .bus = QStringLiteral("sata"),
+                                                .readonly = true});
 
     // only affect the live domain if it's running.
     // otherwise just update the persistent config

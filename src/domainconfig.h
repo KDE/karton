@@ -12,16 +12,16 @@ class DomainConfig : public QObject
 
     Q_PROPERTY(QString hypervisorType READ hypervisorType CONSTANT)
     Q_PROPERTY(int indexId READ indexId CONSTANT)
-    Q_PROPERTY(QString name READ name CONSTANT)
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString uuid READ uuid CONSTANT)
     Q_PROPERTY(QString shortOsId READ shortOsId CONSTANT)
     Q_PROPERTY(QString osId READ osId CONSTANT)
     Q_PROPERTY(bool isActive READ isActive NOTIFY isActiveChanged)
     Q_PROPERTY(QString state READ state NOTIFY stateChanged)
-    Q_PROPERTY(int maxRam READ maxRam CONSTANT)
+    Q_PROPERTY(int maxRam READ maxRam NOTIFY maxRamChanged)
     Q_PROPERTY(int ramUsage READ ramUsage NOTIFY ramUsageChanged)
-    Q_PROPERTY(int cpus READ cpus CONSTANT)
-    Q_PROPERTY(int maxDiskStorage READ maxDiskStorage CONSTANT)
+    Q_PROPERTY(int cpus READ cpus NOTIFY cpusChanged)
+    Q_PROPERTY(int maxDiskStorage READ maxDiskStorage NOTIFY maxDiskStorageChanged)
     Q_PROPERTY(QString xmlConfigPath READ xmlConfigPath CONSTANT)
     Q_PROPERTY(QString isoDiskPath READ isoDiskPath CONSTANT)
     Q_PROPERTY(QString virtualDiskPath READ virtualDiskPath CONSTANT)
@@ -34,6 +34,10 @@ Q_SIGNALS:
     void stateChanged(const QString &state);
     void ramUsageChanged(int ramUsage);
     void autostartChanged(bool autostart);
+    void nameChanged(const QString &name);
+    void maxRamChanged(int maxRam);
+    void cpusChanged(int cpus);
+    void maxDiskStorageChanged(int maxDiskStorage);
 
 public:
     struct DomainConfigData {
@@ -157,6 +161,10 @@ public:
     void setState(const QString &state);
     void setRamUsage(int ramUsage);
     void setAutostart(bool autostart);
+    void setName(const QString &name);
+    void setMaxRam(int maxRam);
+    void setCpus(int cpus);
+    void setMaxDiskStorage(int maxDiskStorage);
 
 private:
     QString m_hypervisorType;

@@ -29,7 +29,7 @@ target_sources(karton
     spicedisplayrenderer.h
     glscanoutrenderer.cpp
     primarysurfacerenderer.cpp
-    domaininstaller.cpp
+    domainxmlbuilder.cpp
     osinfoconfig.cpp
     domainxmlreader.cpp
     commandrunner.cpp
@@ -45,6 +45,7 @@ ecm_target_qml_sources(karton
     qml/VMViewerWindow.qml
     qml/InstallationDialog.qml
     qml/VMPage.qml
+    qml/ConfigurationDialog.qml
 )
 
 ecm_qt_declare_logging_category(

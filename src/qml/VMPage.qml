@@ -9,6 +9,7 @@ import org.kde.kirigamiaddons.formcard 1.0 as FormCard
 import org.kde.karton
 
 Kirigami.ScrollablePage {
+    id: root
     title: domain.config.name
     property Domain domain: null
     readonly property bool isRunning: domain.config.state === "running"
@@ -17,7 +18,7 @@ Kirigami.ScrollablePage {
     bottomPadding: Kirigami.Units.gridUnit
     leftPadding: 0
     rightPadding: 0
-    
+
     actions: [
         Kirigami.Action {
             icon.name: isRunning ? "system-shutdown" : "media-playback-start" 
@@ -68,6 +69,13 @@ Kirigami.ScrollablePage {
                         showPassiveNotification(i18nc("%1 is the name of the virtual machine", "Opening viewer for: %1", domain.config.name))
                     }
                 }
+            }
+        },
+        Kirigami.Action {
+            icon.name: "settings-configure"
+            enabled: !isRunning
+            onTriggered: {
+                configurationDialog.open();
             }
         }
     ]
@@ -172,6 +180,11 @@ Kirigami.ScrollablePage {
             }
         }
     }
+    ConfigurationDialog {
+        id: configurationDialog
+        domain: root.domain
+    }
+
     Kirigami.Dialog {
         id: deleteConfirmationDialog
         title: i18nc("Confirm deleting %1 (virtual machine name)", "Delete '%1'?",

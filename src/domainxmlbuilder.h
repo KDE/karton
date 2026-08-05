@@ -10,17 +10,19 @@
 #include <QDomElement>
 #include <QObject>
 
-class DomainInstaller : public QObject
+class DomainXmlBuilder : public QObject
 {
     Q_OBJECT
 
 public:
     using QObject::QObject;
 
-    virDomainPtr setupDomain(virConnectPtr conn, const DomainConfig *config);
-    QString generateXML(virConnectPtr conn, const DomainConfig *config);
+    struct EditableConfig {
+        int maxRam;
+        int cpus;
+        int maxDiskStorage;
+    };
 
-private:
     struct DiskDeviceConfig {
         QString diskType;
         QString device;
@@ -32,6 +34,12 @@ private:
         bool readonly;
     };
 
+    virDomainPtr setupDomain(virConnectPtr conn, const DomainConfig *config);
+    QString generateXML(virConnectPtr conn, const DomainConfig *config);
+    QString updateXML(const QString &xmlDesc, const EditableConfig &config);
+    QString generateDiskXML(const DiskDeviceConfig &config);
+
+private:
     struct NetworkInterfaceConfig {
         QString type;
         QString mac;
@@ -82,8 +90,10 @@ private:
     void addVideoDevices(QDomDocument &document, QDomElement &parent, const VideoConfig &config);
     void addInputDevices(QDomDocument &document, QDomElement &parent, const InputConfig &config);
     void addConsoleDevices(QDomDocument &document, QDomElement &parent, const ConsoleConfig &config);
+    void addHardwareElements(QDomDocument &document, QDomElement &root, int maxRam, int cpus);
 
     QString genMac();
     void addElement(QDomDocument &doc, QDomElement &parent, const QString &name, const QString &value);
     void addElementWithAttributes(QDomDocument &doc, QDomElement &parent, const QString &name, const QString &value, const QMap<QString, QString> &attributes);
+    void replaceElement(QDomDocument &doc, QDomElement &parent, const QString &name, const QString &value, const QMap<QString, QString> &attributes);
 };

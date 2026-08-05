@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: 2025 Derek Lin <derekhongdalin@gmail.com>
 
-#include "domaininstaller.h"
+#include "domainxmlbuilder.h"
 
-#include <glib.h>
-
-#include <QDir>
 #include <QDomDocument>
 #include <QDomElement>
 #include <QDomText>
-#include <QFile>
 #include <QMap>
 #include <QRandomGenerator>
 #include <QStandardPaths>
@@ -25,7 +21,7 @@
 #define ETH_ALEN 6
 #endif
 
-virDomainPtr DomainInstaller::setupDomain(virConnectPtr conn, const DomainConfig *config)
+virDomainPtr DomainXmlBuilder::setupDomain(virConnectPtr conn, const DomainConfig *config)
 {
     QString xmlString = generateXML(conn, config);
     virDomainPtr dom = virDomainDefineXML(conn, xmlString.toStdString().c_str());
@@ -34,7 +30,7 @@ virDomainPtr DomainInstaller::setupDomain(virConnectPtr conn, const DomainConfig
     return dom;
 }
 
-QString DomainInstaller::generateXML(virConnectPtr conn, const DomainConfig *config)
+QString DomainXmlBuilder::generateXML(virConnectPtr conn, const DomainConfig *config)
 {
     OsinfoConfig osinfo;
     const QString osId = osinfo.getOsIdFromShortId(config->shortOsId());
@@ -85,16 +81,8 @@ QString DomainInstaller::generateXML(virConnectPtr conn, const DomainConfig *con
     libosinfoId[QStringLiteral("short-id")] = config->shortOsId();
     addElementWithAttributes(document, libosinfo, QStringLiteral("libosinfo:os"), QString(), libosinfoId);
 
-    // memory element
-    QMap<QString, QString> mem;
-    mem[QStringLiteral("unit")] = QStringLiteral("MiB");
-    addElementWithAttributes(document, root, QStringLiteral("memory"), QString::number(config->maxRam() * 1024), mem); // GB->MB
-    addElementWithAttributes(document, root, QStringLiteral("currentMemory"), QString::number(config->maxRam() * 1024), mem);
-
-    // vpu element
-    QMap<QString, QString> vcpu;
-    vcpu[QStringLiteral("placement")] = QStringLiteral("static"); // static || auto
-    addElementWithAttributes(document, root, QStringLiteral("vcpu"), QString::number(config->cpus()), vcpu);
+    // memory and vcpu elements
+    addHardwareElements(document, root, config->maxRam(), config->cpus());
 
     // os element
     QDomElement os = document.createElement(QStringLiteral("os"));
@@ -229,7 +217,48 @@ QString DomainInstaller::generateXML(virConnectPtr conn, const DomainConfig *con
     return xmlString;
 }
 
-void DomainInstaller::addDiskDevices(QDomDocument &document, QDomElement &parent, const DiskDeviceConfig &config)
+QString DomainXmlBuilder::updateXML(const QString &xmlDesc, const EditableConfig &config)
+{
+    QDomDocument document;
+    document.setContent(xmlDesc);
+    QDomElement root = document.documentElement();
+
+    addHardwareElements(document, root, config.maxRam, config.cpus);
+
+    // metadata->Karton: only the one attribute, the others (screenshotPreviewPath) are
+    // not editable and must survive
+    const QDomNodeList kartonDataNodes = root.elementsByTagName(QStringLiteral("karton:data"));
+    if (!kartonDataNodes.isEmpty()) {
+        QDomElement kartonData = kartonDataNodes.at(0).toElement();
+        kartonData.setAttribute(QStringLiteral("maxDiskStorage"), QString::number(config.maxDiskStorage * 1024));
+    }
+
+    return document.toString(4);
+}
+
+QString DomainXmlBuilder::generateDiskXML(const DiskDeviceConfig &config)
+{
+    QDomDocument document;
+    QDomElement devices = document.createElement(QStringLiteral("devices"));
+    addDiskDevices(document, devices, config);
+    document.appendChild(devices.firstChildElement());
+
+    return document.toString(4);
+}
+
+void DomainXmlBuilder::addHardwareElements(QDomDocument &document, QDomElement &root, int maxRam, int cpus)
+{
+    QMap<QString, QString> mem;
+    mem[QStringLiteral("unit")] = QStringLiteral("MiB");
+    replaceElement(document, root, QStringLiteral("memory"), QString::number(maxRam * 1024), mem); // GB->MB
+    replaceElement(document, root, QStringLiteral("currentMemory"), QString::number(maxRam * 1024), mem);
+
+    QMap<QString, QString> vcpu;
+    vcpu[QStringLiteral("placement")] = QStringLiteral("static"); // static || auto
+    replaceElement(document, root, QStringLiteral("vcpu"), QString::number(cpus), vcpu);
+}
+
+void DomainXmlBuilder::addDiskDevices(QDomDocument &document, QDomElement &parent, const DiskDeviceConfig &config)
 {
     QDomElement disk = document.createElement(QStringLiteral("disk"));
     parent.appendChild(disk);
@@ -241,9 +270,11 @@ void DomainInstaller::addDiskDevices(QDomDocument &document, QDomElement &parent
     driver[QStringLiteral("type")] = config.format;
     addElementWithAttributes(document, disk, QStringLiteral("driver"), QString(), driver);
 
-    QMap<QString, QString> source;
-    source[QStringLiteral("file")] = config.sourcePath;
-    addElementWithAttributes(document, disk, QStringLiteral("source"), QString(), source);
+    if (!config.sourcePath.isEmpty()) {
+        QMap<QString, QString> source;
+        source[QStringLiteral("file")] = config.sourcePath;
+        addElementWithAttributes(document, disk, QStringLiteral("source"), QString(), source);
+    }
 
     QMap<QString, QString> target;
     target[QStringLiteral("dev")] = config.target;
@@ -255,7 +286,7 @@ void DomainInstaller::addDiskDevices(QDomDocument &document, QDomElement &parent
     }
 }
 
-void DomainInstaller::addNetworkInterfaceDevices(QDomDocument &document, QDomElement &parent, const NetworkInterfaceConfig &config)
+void DomainXmlBuilder::addNetworkInterfaceDevices(QDomDocument &document, QDomElement &parent, const NetworkInterfaceConfig &config)
 {
     QDomElement interface = document.createElement(QStringLiteral("interface"));
     parent.appendChild(interface);
@@ -287,7 +318,7 @@ void DomainInstaller::addNetworkInterfaceDevices(QDomDocument &document, QDomEle
     }
 }
 
-void DomainInstaller::addGraphicsDevices(QDomDocument &document, QDomElement &parent, const GraphicsConfig &config)
+void DomainXmlBuilder::addGraphicsDevices(QDomDocument &document, QDomElement &parent, const GraphicsConfig &config)
 {
     QDomElement graphics = document.createElement(QStringLiteral("graphics"));
     parent.appendChild(graphics);
@@ -312,7 +343,7 @@ void DomainInstaller::addGraphicsDevices(QDomDocument &document, QDomElement &pa
     }
 }
 
-void DomainInstaller::addSoundDevices(QDomDocument &document, QDomElement &parent, const SoundConfig &config)
+void DomainXmlBuilder::addSoundDevices(QDomDocument &document, QDomElement &parent, const SoundConfig &config)
 {
     QDomElement sound = document.createElement(QStringLiteral("sound"));
     parent.appendChild(sound);
@@ -323,7 +354,7 @@ void DomainInstaller::addSoundDevices(QDomDocument &document, QDomElement &paren
     audio.setAttribute(QStringLiteral("id"), config.id);
 }
 
-void DomainInstaller::addAudioDevices(QDomDocument &document, QDomElement &parent, const AudioConfig &config)
+void DomainXmlBuilder::addAudioDevices(QDomDocument &document, QDomElement &parent, const AudioConfig &config)
 {
     QDomElement audio = document.createElement(QStringLiteral("audio"));
     parent.appendChild(audio);
@@ -331,7 +362,7 @@ void DomainInstaller::addAudioDevices(QDomDocument &document, QDomElement &paren
     audio.setAttribute(QStringLiteral("type"), config.type);
 }
 
-void DomainInstaller::addVideoDevices(QDomDocument &document, QDomElement &parent, const VideoConfig &config)
+void DomainXmlBuilder::addVideoDevices(QDomDocument &document, QDomElement &parent, const VideoConfig &config)
 {
     QDomElement video = document.createElement(QStringLiteral("video"));
     parent.appendChild(video);
@@ -349,7 +380,7 @@ void DomainInstaller::addVideoDevices(QDomDocument &document, QDomElement &paren
     }
 }
 
-void DomainInstaller::addInputDevices(QDomDocument &document, QDomElement &parent, const InputConfig &config)
+void DomainXmlBuilder::addInputDevices(QDomDocument &document, QDomElement &parent, const InputConfig &config)
 {
     QDomElement input = document.createElement(QStringLiteral("input"));
     parent.appendChild(input);
@@ -357,7 +388,7 @@ void DomainInstaller::addInputDevices(QDomDocument &document, QDomElement &paren
     input.setAttribute(QStringLiteral("bus"), config.bus);
 }
 
-void DomainInstaller::addConsoleDevices(QDomDocument &document, QDomElement &parent, const ConsoleConfig &config)
+void DomainXmlBuilder::addConsoleDevices(QDomDocument &document, QDomElement &parent, const ConsoleConfig &config)
 {
     QDomElement console = document.createElement(QStringLiteral("console"));
     parent.appendChild(console);
@@ -366,7 +397,7 @@ void DomainInstaller::addConsoleDevices(QDomDocument &document, QDomElement &par
 
 // Temporarily: generate a random mac address (in unicast)...
 // eventually generate a network domain.
-QString DomainInstaller::genMac()
+QString DomainXmlBuilder::genMac()
 {
     QByteArray data(ETH_ALEN, Qt::Uninitialized);
     QRandomGenerator::global()->generate(data.begin(), data.end());
@@ -376,7 +407,7 @@ QString DomainInstaller::genMac()
     data[0] |= SET_LOCAL_ASSIGNMENT_BIT;
     return QString::fromLatin1(data.toHex(':')).toLower();
 }
-void DomainInstaller::addElement(QDomDocument &doc, QDomElement &parent, const QString &name, const QString &value)
+void DomainXmlBuilder::addElement(QDomDocument &doc, QDomElement &parent, const QString &name, const QString &value)
 {
     QDomElement element = doc.createElement(name);
     if (!value.isEmpty()) {
@@ -386,11 +417,11 @@ void DomainInstaller::addElement(QDomDocument &doc, QDomElement &parent, const Q
     parent.appendChild(element);
 }
 
-void DomainInstaller::addElementWithAttributes(QDomDocument &doc,
-                                               QDomElement &parent,
-                                               const QString &name,
-                                               const QString &value,
-                                               const QMap<QString, QString> &attributes)
+void DomainXmlBuilder::addElementWithAttributes(QDomDocument &doc,
+                                                QDomElement &parent,
+                                                const QString &name,
+                                                const QString &value,
+                                                const QMap<QString, QString> &attributes)
 {
     QDomElement element = doc.createElement(name);
     if (!value.isEmpty()) {
@@ -403,4 +434,17 @@ void DomainInstaller::addElementWithAttributes(QDomDocument &doc,
     }
 
     parent.appendChild(element);
+}
+
+void DomainXmlBuilder::replaceElement(QDomDocument &doc,
+                                      QDomElement &parent,
+                                      const QString &name,
+                                      const QString &value,
+                                      const QMap<QString, QString> &attributes)
+{
+    const QDomElement existing = parent.firstChildElement(name);
+    if (!existing.isNull()) {
+        parent.removeChild(existing);
+    }
+    addElementWithAttributes(doc, parent, name, value, attributes);
 }
