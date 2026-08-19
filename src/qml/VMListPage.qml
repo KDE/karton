@@ -9,6 +9,7 @@ import org.kde.karton
 
 
 Kirigami.ScrollablePage {
+    id: page
     title: i18nc("noun, Virtual Machines","Virtual Machines")
     topPadding: 0
     bottomPadding: 0
@@ -28,13 +29,16 @@ Kirigami.ScrollablePage {
             icon.name: "list-add-symbolic"
             text: i18nc("verb, to create a new virtual machine", "Create")
             onTriggered: source => {
-                addDomainDialog.open();
+                const dialog = addDomainDialog.createObject(page);
+                dialog.closed.connect(dialog.destroy);
+                dialog.open();
             }
         }
     ]
 
-    InstallationDialog {
+    Component {
         id: addDomainDialog
+        InstallationDialog {}
     }
 
     Component {
