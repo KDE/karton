@@ -94,7 +94,7 @@ QSGNode *PrimarySurfaceRenderer::updatePaintNode(QQuickWindow *window, QSGNode *
 {
     QMutexLocker locker(&m_frameLock);
 
-    if (!m_frameUpdated || m_frame.isNull() || m_frame.width() <= 0 || m_frame.height() <= 0) {
+    if (m_frame.isNull() || m_frame.width() <= 0 || m_frame.height() <= 0) {
         delete oldNode;
         return nullptr;
     }
@@ -103,14 +103,19 @@ QSGNode *PrimarySurfaceRenderer::updatePaintNode(QQuickWindow *window, QSGNode *
     if (!node) {
         node = new QSGSimpleTextureNode();
         node->setOwnsTexture(true);
+        // the node defaults to nearest, which aliases badly once the frame is scaled
+        node->setFiltering(QSGTexture::Linear);
     }
 
-    QSGTexture *texture = window->createTextureFromImage(m_frame);
-    if (texture) {
-        node->setTexture(texture);
-        node->setRect(bounds);
-        m_frameUpdated = false;
+    // a resize repaints without a new frame, so keep showing the last one rather than blanking
+    if (m_frameUpdated || !node->texture()) {
+        if (QSGTexture *texture = window->createTextureFromImage(m_frame)) {
+            node->setTexture(texture);
+            m_frameUpdated = false;
+        }
     }
+
+    node->setRect(bounds);
 
     return node;
 }

@@ -4,6 +4,7 @@
 #include "karton.h"
 
 #include <libvirt/libvirt.h>
+#include <libvirt/virterror.h>
 
 #include <KLocalizedString>
 #include <QDir>
@@ -243,6 +244,9 @@ QVector<Domain *> Karton::domains()
 bool Karton::startDomain(const Domain *domain)
 {
     virDomainPtr domainPtr = domain->domainPtr();
+
+    ensureSpiceAgentChannel(domain);
+
     int result = virDomainCreate(domainPtr);
 
     if (result < 0) {
@@ -253,6 +257,34 @@ bool Karton::startDomain(const Domain *domain)
     }
     qCInfo(KARTON_DEBUG) << "Successfully started domain:" << domain->config()->name();
     return true;
+}
+
+// only touches the persistent config, so it applies on the boot that follows
+void Karton::ensureSpiceAgentChannel(const Domain *domain)
+{
+    virDomainPtr domainPtr = domain->domainPtr();
+    char *xmlDesc = virDomainGetXMLDesc(domainPtr, VIR_DOMAIN_XML_INACTIVE);
+    if (!xmlDesc) {
+        qCWarning(KARTON_DEBUG) << "Could not read configuration to check for a SPICE agent channel:" << domain->config()->name();
+        return;
+    }
+    const QString desc = QString::fromUtf8(xmlDesc);
+    free(xmlDesc);
+
+    if (DomainXmlBuilder::hasSpiceAgentChannel(desc)) {
+        return;
+    }
+
+    DomainXmlBuilder builder;
+    const QString fragment = builder.generateSpiceAgentChannelXML();
+    // only warns: a missing agent channel must never stop a VM from starting
+    // TODO: tell the user that the guest will not follow the window size
+    if (virDomainAttachDeviceFlags(domainPtr, fragment.toUtf8().constData(), VIR_DOMAIN_AFFECT_CONFIG) < 0) {
+        qCWarning(KARTON_DEBUG) << "Could not add a SPICE agent channel to" << domain->config()->name() << ":" << virGetLastErrorMessage();
+        return;
+    }
+
+    qCInfo(KARTON_DEBUG) << "Added a SPICE agent channel to" << domain->config()->name();
 }
 
 bool Karton::stopDomain(const Domain *domain)
@@ -474,6 +506,9 @@ void Karton::cleanupDomainViewer()
 
 bool Karton::viewDomain(const Domain *domain)
 {
+    // covers domains started outside Karton, which never went through startDomain
+    ensureSpiceAgentChannel(domain);
+
     m_currentDomain = const_cast<Domain *>(domain);
     Q_EMIT currentDomainChanged();
 

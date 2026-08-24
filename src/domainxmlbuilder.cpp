@@ -209,6 +209,14 @@ QString DomainXmlBuilder::generateXML(virConnectPtr conn, const DomainConfig *co
 
     addConsoleDevices(document, devices, {.type = QStringLiteral("pty")});
 
+    // devices->controller and devices->channel elements
+    // virtio-serial port for spice-vdagent, required for the guest to follow the viewer size
+    addControllerDevices(document, devices, {.type = QStringLiteral("virtio-serial"), .index = QStringLiteral("0")});
+
+    addChannelDevices(document,
+                      devices,
+                      {.type = QStringLiteral("spicevmc"), .targetType = QStringLiteral("virtio"), .targetName = QStringLiteral("com.redhat.spice.0")});
+
     // write to file
     QString xmlString = document.toString(4);
 
@@ -244,6 +252,37 @@ QString DomainXmlBuilder::generateDiskXML(const DiskDeviceConfig &config)
     document.appendChild(devices.firstChildElement());
 
     return document.toString(4);
+}
+
+QString DomainXmlBuilder::generateSpiceAgentChannelXML()
+{
+    QDomDocument document;
+    QDomElement devices = document.createElement(QStringLiteral("devices"));
+    // libvirt adds the virtio-serial controller itself
+    addChannelDevices(document,
+                      devices,
+                      {.type = QStringLiteral("spicevmc"), .targetType = QStringLiteral("virtio"), .targetName = QStringLiteral("com.redhat.spice.0")});
+    document.appendChild(devices.firstChildElement());
+
+    return document.toString(4);
+}
+
+bool DomainXmlBuilder::hasSpiceAgentChannel(const QString &xmlDesc)
+{
+    QDomDocument document;
+    if (!document.setContent(xmlDesc)) {
+        return false;
+    }
+
+    const QDomNodeList channels = document.documentElement().elementsByTagName(QStringLiteral("channel"));
+    for (int i = 0; i < channels.count(); ++i) {
+        const QDomElement target = channels.at(i).toElement().firstChildElement(QStringLiteral("target"));
+        if (target.attribute(QStringLiteral("name")) == QStringLiteral("com.redhat.spice.0")) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void DomainXmlBuilder::addHardwareElements(QDomDocument &document, QDomElement &root, int maxRam, int cpus)
@@ -393,6 +432,26 @@ void DomainXmlBuilder::addConsoleDevices(QDomDocument &document, QDomElement &pa
     QDomElement console = document.createElement(QStringLiteral("console"));
     parent.appendChild(console);
     console.setAttribute(QStringLiteral("type"), config.type);
+}
+
+void DomainXmlBuilder::addControllerDevices(QDomDocument &document, QDomElement &parent, const ControllerConfig &config)
+{
+    QDomElement controller = document.createElement(QStringLiteral("controller"));
+    parent.appendChild(controller);
+    controller.setAttribute(QStringLiteral("type"), config.type);
+    controller.setAttribute(QStringLiteral("index"), config.index);
+}
+
+void DomainXmlBuilder::addChannelDevices(QDomDocument &document, QDomElement &parent, const ChannelConfig &config)
+{
+    QDomElement channel = document.createElement(QStringLiteral("channel"));
+    parent.appendChild(channel);
+    channel.setAttribute(QStringLiteral("type"), config.type);
+
+    QMap<QString, QString> target;
+    target[QStringLiteral("type")] = config.targetType;
+    target[QStringLiteral("name")] = config.targetName;
+    addElementWithAttributes(document, channel, QStringLiteral("target"), QString(), target);
 }
 
 // Temporarily: generate a random mac address (in unicast)...

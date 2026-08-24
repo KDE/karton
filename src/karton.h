@@ -76,4 +76,5 @@ private:
     CommandRunner *m_commandRunner;
 
     bool init();
+    void ensureSpiceAgentChannel(const Domain *domain);
 };

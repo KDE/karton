@@ -14,6 +14,7 @@
 #include <QAudioFormat>
 #include <QAudioSink>
 #include <QIODevice>
+#include <QTimer>
 
 #include <memory>
 
@@ -28,6 +29,7 @@ class DomainViewer : public QQuickItem
     Q_PROPERTY(Domain *domain READ domain WRITE setDomain NOTIFY domainChanged REQUIRED)
     Q_PROPERTY(QString host MEMBER m_host NOTIFY hostChanged)
     Q_PROPERTY(int port MEMBER m_port NOTIFY portChanged)
+    Q_PROPERTY(QSizeF availableArea READ availableArea WRITE setAvailableArea NOTIFY availableAreaChanged)
 
 public:
     explicit DomainViewer(QQuickItem *parent = nullptr);
@@ -60,6 +62,12 @@ public:
 
     Q_INVOKABLE void saveFrameToDomain();
 
+    QSizeF availableArea() const
+    {
+        return m_availableArea;
+    }
+    void setAvailableArea(const QSizeF &area);
+
     QString host() const
     {
         return m_host;
@@ -91,6 +99,7 @@ Q_SIGNALS:
 
     void portChanged();
     void hostChanged();
+    void availableAreaChanged();
 
 private Q_SLOTS:
     void handleHostPort(int exitCode, const QString &output);
@@ -103,7 +112,11 @@ private:
     };
 
     static void channel_new_callback(SpiceSession *session, SpiceChannel *channel, gpointer user_data);
+    static void main_agent_connected_callback(GObject *object, GParamSpec *pspec, gpointer user_data);
     void attachDisplayChannel(SpiceChannel *channel);
+    void attachMainChannel(SpiceChannel *channel);
+    void updateAgentConnected();
+    void sendGuestResize();
     static uint8_t evdevToPcXt(uint32_t evdev_scancode);
 
     static void playback_start_callback(SpicePlaybackChannel *channel, gint format, gint channels, gint rate, gpointer user_data);
@@ -125,6 +138,17 @@ private:
     SpiceChannel *m_display_channel = nullptr;
     SpiceInputsChannel *m_inputs_channel = nullptr;
     SpicePlaybackChannel *m_playback_channel;
+    SpiceMainChannel *m_main_channel = nullptr;
+
+    gulong m_agentNotifyId = 0;
+    bool m_agentConnected = false;
+    int m_displayId = 0;
+    QTimer *m_resizeDebounce = nullptr;
+    QSize m_lastRequestedGuestSize;
+    QSizeF m_availableArea;
+
+    // same floor virt-viewer uses; a zero size makes spice-gtk drop the config without a word
+    static constexpr QSize minimumGuestSize = {320, 200};
 
     int m_current_button_mask = 0;
 

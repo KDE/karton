@@ -10,6 +10,8 @@
 #include <QString>
 #include <QUrl>
 
+#include <algorithm>
+
 #include "domain.h"
 #include "glib.h"
 #include "glscanoutrenderer.h"
@@ -41,6 +43,12 @@ DomainViewer::DomainViewer(QQuickItem *parent)
     setAcceptedMouseButtons(Qt::AllButtons);
     setAcceptHoverEvents(true);
     setFlag(ItemIsFocusScope, true);
+
+    // coalesce a resize drag into a single guest modeset
+    m_resizeDebounce = new QTimer(this);
+    m_resizeDebounce->setSingleShot(true);
+    m_resizeDebounce->setInterval(1000);
+    connect(m_resizeDebounce, &QTimer::timeout, this, &DomainViewer::sendGuestResize);
 
     connect(m_commandRunner, &CommandRunner::commandFinished, this, &DomainViewer::handleHostPort);
 }
@@ -159,12 +167,24 @@ void DomainViewer::disconnectFromSpice()
         m_renderer.reset();
     }
 
+    m_resizeDebounce->stop();
+    m_lastRequestedGuestSize = QSize();
+
+    if (m_main_channel && m_agentNotifyId) {
+        g_signal_handler_disconnect(m_main_channel, m_agentNotifyId);
+    }
+    m_agentNotifyId = 0;
+    m_main_channel = nullptr;
+
+    m_agentConnected = false;
+
     if (m_session) {
         spice_session_disconnect(m_session);
 
         g_object_unref(m_session);
         m_session = nullptr;
         m_display_channel = nullptr;
+        m_inputs_channel = nullptr;
         m_audio = nullptr;
         m_playback_channel = nullptr;
         m_connected = false;
@@ -178,7 +198,10 @@ void DomainViewer::channel_new_callback(SpiceSession *session, SpiceChannel *cha
     DomainViewer *item = static_cast<DomainViewer *>(user_data);
 
     item->checkChannelStatus(); // uncomment for channel debug msgs
-    if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
+    if (SPICE_IS_MAIN_CHANNEL(channel)) {
+        qCInfo(KARTON_DEBUG) << "SPICE: main channel connected";
+        item->attachMainChannel(channel);
+    } else if (SPICE_IS_DISPLAY_CHANNEL(channel)) {
         qCInfo(KARTON_DEBUG) << "SPICE display connected";
         item->attachDisplayChannel(channel);
     } else if (SPICE_IS_INPUTS_CHANNEL(channel)) {
@@ -194,14 +217,98 @@ void DomainViewer::channel_new_callback(SpiceSession *session, SpiceChannel *cha
         g_signal_connect(channel, "playback-data", G_CALLBACK(playback_data_callback), item);
         g_signal_connect(channel, "playback-stop", G_CALLBACK(playback_stop_callback), item);
     } else {
-        qCWarning(KARTON_DEBUG) << "Unrecognised SPICE channel type";
+        qCDebug(KARTON_DEBUG) << "Unhandled SPICE channel type";
     }
 }
 
 // ========================== Display rendering  ========================
 
+void DomainViewer::attachMainChannel(SpiceChannel *channel)
+{
+    m_main_channel = SPICE_MAIN_CHANNEL(channel);
+    m_agentNotifyId = g_signal_connect(channel, "notify::agent-connected", G_CALLBACK(&DomainViewer::main_agent_connected_callback), this);
+
+    spice_channel_connect(channel);
+    updateAgentConnected();
+}
+
+void DomainViewer::main_agent_connected_callback(GObject *object, GParamSpec *pspec, gpointer user_data)
+{
+    Q_UNUSED(object);
+    Q_UNUSED(pspec);
+
+    static_cast<DomainViewer *>(user_data)->updateAgentConnected();
+}
+
+void DomainViewer::updateAgentConnected()
+{
+    if (!m_main_channel) {
+        return;
+    }
+
+    gboolean connected = FALSE;
+    g_object_get(m_main_channel, "agent-connected", &connected, nullptr);
+
+    if (static_cast<bool>(connected) == m_agentConnected) {
+        return;
+    }
+    m_agentConnected = connected;
+    qCInfo(KARTON_DEBUG) << "SPICE guest agent connected:" << m_agentConnected;
+
+    // forget the last request so the size is pushed again after a guest reboot
+    m_lastRequestedGuestSize = QSize();
+
+    if (m_agentConnected) {
+        sendGuestResize();
+    }
+}
+
+void DomainViewer::setAvailableArea(const QSizeF &area)
+{
+    if (m_availableArea == area) {
+        return;
+    }
+
+    m_availableArea = area;
+    Q_EMIT availableAreaChanged();
+
+    m_resizeDebounce->start();
+}
+
+void DomainViewer::sendGuestResize()
+{
+    if (!m_main_channel || !m_agentConnected || !m_connected) {
+        return;
+    }
+    if (!window() || m_availableArea.width() <= 0 || m_availableArea.height() <= 0) {
+        return;
+    }
+
+    // & ~1 keeps the size even, which the video encode path prefers
+    const qreal dpr = window()->devicePixelRatio();
+    const int width = std::max(static_cast<int>(qRound(m_availableArea.width() * dpr)) & ~1, minimumGuestSize.width());
+    const int height = std::max(static_cast<int>(qRound(m_availableArea.height() * dpr)) & ~1, minimumGuestSize.height());
+
+    const QSize requested(width, height);
+    if (requested == m_lastRequestedGuestSize) {
+        return;
+    }
+    m_lastRequestedGuestSize = requested;
+
+    qCInfo(KARTON_DEBUG) << "Requesting guest resolution" << requested;
+    // without the enable call the display stays undefined and nothing is sent at all
+    spice_main_channel_update_display_enabled(m_main_channel, m_displayId, TRUE, FALSE);
+    // sent by hand, letting spice-gtk send it costs another second
+    spice_main_channel_update_display(m_main_channel, m_displayId, 0, 0, width, height, FALSE);
+    spice_main_channel_send_monitor_config(m_main_channel);
+}
+
 void DomainViewer::attachDisplayChannel(SpiceChannel *channel)
 {
+    gint channelId = 0;
+    g_object_get(channel, "channel-id", &channelId, nullptr);
+    m_displayId = channelId;
+
     spice_channel_connect(channel);
     m_display_channel = channel;
 
@@ -442,7 +549,7 @@ void DomainViewer::hoverMoveEvent(QHoverEvent *event)
 {
     static int hoverCounter = 0;
     if (++hoverCounter % 20 == 0) {
-        qCInfo(KARTON_DEBUG) << "Mouse hover at (" << event->position().x() << "," << event->position().y() << ")";
+        qCDebug(KARTON_DEBUG) << "Mouse hover at (" << event->position().x() << "," << event->position().y() << ")";
     }
     if (m_inputs_channel && m_connected) {
         qreal x = event->position().x();

@@ -39,6 +39,9 @@ public:
     QString updateXML(const QString &xmlDesc, const EditableConfig &config);
     QString generateDiskXML(const DiskDeviceConfig &config);
 
+    QString generateSpiceAgentChannelXML();
+    static bool hasSpiceAgentChannel(const QString &xmlDesc);
+
 private:
     struct NetworkInterfaceConfig {
         QString type;
@@ -82,6 +85,17 @@ private:
         QString type;
     };
 
+    struct ControllerConfig {
+        QString type;
+        QString index;
+    };
+
+    struct ChannelConfig {
+        QString type;
+        QString targetType;
+        QString targetName;
+    };
+
     void addDiskDevices(QDomDocument &document, QDomElement &parent, const DiskDeviceConfig &config);
     void addNetworkInterfaceDevices(QDomDocument &document, QDomElement &parent, const NetworkInterfaceConfig &config);
     void addGraphicsDevices(QDomDocument &document, QDomElement &parent, const GraphicsConfig &config);
@@ -90,6 +104,8 @@ private:
     void addVideoDevices(QDomDocument &document, QDomElement &parent, const VideoConfig &config);
     void addInputDevices(QDomDocument &document, QDomElement &parent, const InputConfig &config);
     void addConsoleDevices(QDomDocument &document, QDomElement &parent, const ConsoleConfig &config);
+    void addControllerDevices(QDomDocument &document, QDomElement &parent, const ControllerConfig &config);
+    void addChannelDevices(QDomDocument &document, QDomElement &parent, const ChannelConfig &config);
     void addHardwareElements(QDomDocument &document, QDomElement &root, int maxRam, int cpus);
 
     QString genMac();

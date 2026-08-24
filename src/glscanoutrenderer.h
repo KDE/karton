@@ -10,6 +10,11 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+#include <QMutex>
+#include <QSize>
+
+#include <rhi/qrhi.h>
+
 // hardware-accel renderer
 class GlScanoutRenderer : public SpiceDisplayRenderer
 {
@@ -26,11 +31,13 @@ public:
 
     QSize frameSize() const override
     {
+        QMutexLocker locker(&m_scanoutLock);
         return QSize(m_imageWidth, m_imageHeight);
     }
 
 private:
     static void gl_draw_callback(SpiceDisplayChannel *channel, guint x, guint y, guint width, guint height, gpointer user_data);
+    static void gl_scanout_notify_callback(GObject *object, GParamSpec *pspec, gpointer user_data);
     void handleGlScanout(const SpiceGlScanout *scanout);
     void createTextureFromScanout(const SpiceGlScanout *scanout);
     void cleanupEGLImage();
@@ -38,14 +45,21 @@ private:
 
     SpiceDisplayChannel *m_channel = nullptr;
     gulong m_glDrawHandlerId = 0;
+    gulong m_glScanoutHandlerId = 0;
 
+    // guards the scanout against the render thread importing it while it is being replaced
+    mutable QMutex m_scanoutLock;
     int m_imageWidth = 0;
     int m_imageHeight = 0;
     SpiceGlScanout m_scanout = {};
     bool m_hasScanout = false;
+    bool m_scanoutDirty = false;
     EGLImageKHR m_eglImage = EGL_NO_IMAGE_KHR;
     PFNEGLDESTROYIMAGEKHRPROC m_eglDestroyImageKHR = nullptr;
     PFNGLEGLIMAGETARGETTEXTURE2DOESPROC m_glEGLImageTargetTexture2DOES = nullptr;
     PFNEGLCREATEIMAGEKHRPROC m_eglCreateImageKHR = nullptr;
     GLuint m_texId = 0;
+
+    // the scene graph owns the textures, this only records when they need rebuilding
+    QSize m_rhiTextureSize;
 };
