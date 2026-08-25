@@ -339,7 +339,13 @@
                         {
                             "type": "archive",
                             "url": "https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.24.tar.bz2",
-                            "sha256": "7efd2685f7b327326dcfb85cee426d9b871fd70e22caa15bb68d595ce2a2b12a"
+                            "sha256": "7efd2685f7b327326dcfb85cee426d9b871fd70e22caa15bb68d595ce2a2b12a",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 1749,
+                                "stable-only": true,
+                                "url-template": "https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-$version.tar.bz2"
+                            }
                         }
                     ]
                 },
