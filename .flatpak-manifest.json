@@ -185,7 +185,7 @@
                         "type": "anitya",
                         "project-id": 11576,
                         "stable-only": true,
-                        "url-template": "https://www.spice-space.org/download/gtk/spice-gtk-$version.tar.xz"
+                        "url-template": "https://gitlab.freedesktop.org/spice/spice-gtk/-/archive/v$version/spice-gtk-v$version.tar.gz"
                     }
                 }
             ],
