@@ -266,6 +266,23 @@
             ]
         },
         {
+            "name": "dtc",
+            "buildsystem": "meson",
+            "sources": [
+                {
+                    "type": "archive",
+                    "url": "https://git.kernel.org/pub/scm/utils/dtc/dtc.git/snapshot/v1.8.1.tar.gz",
+                    "sha256": "a6bea318d8d4c80ad9637a0c94571ba1148d482604006f02b70e70126ac2310b",
+                    "x-checker-data": {
+                        "type": "anitya",
+                        "project-id": 16911,
+                        "stable-only": true,
+                        "url-template": "https://git.kernel.org/pub/scm/utils/dtc/dtc.git/snapshot/v$version.tar.gz"
+                    }
+                }
+            ]
+        },
+        {
             "name": "qemu",
             "config-opts": [
                 "--disable-user",
