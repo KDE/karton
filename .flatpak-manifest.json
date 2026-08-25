@@ -59,8 +59,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz",
-                            "sha256": "352133ec9545da76f77e70ccb48c9d7e5324d67f6474744647a7ed382b5e05fa",
+                            "url": "https://github.com/thom311/libnl/releases/download/libnl3_12_0/libnl-3.12.0.tar.gz",
+                            "sha256": "fc51ca7196f1a3f5fdf6ffd3864b50f4f9c02333be28be4eeca057e103c0dd18",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 1684,
@@ -101,8 +101,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-1.3.2.tar.bz2",
-                            "sha256": "e24eb88b8ce7db3b7ca6eb80115dd1284abc5ec32a8deccfed2224fc2532b9fd",
+                            "url": "https://downloads.sourceforge.net/sourceforge/libtirpc/libtirpc-1.3.7.tar.bz2",
+                            "sha256": "b47d3ac19d3549e54a05d0019a6c400674da716123858cfdb6d3bdd70a66c702",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 1740,
@@ -118,8 +118,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.1.tar.gz",
-                            "sha256": "750f7e57b81407a25b707867e90d7ee80aeb53bf515b114fc218f3c78dc9a6e8",
+                            "url": "https://github.com/thkukuk/rpcsvc-proto/archive/v1.4.4.tar.gz",
+                            "sha256": "7988641deae8463303b6273d7af98ece09111c385d4c9134a142a5fad3cdfef8",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 155452,
@@ -143,8 +143,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://libvirt.org/sources/libvirt-9.0.0.tar.xz",
-                            "sha256": "deca5cff1b7baac297bca9663907c61f71a47183371dc7ac019c107806d5435a",
+                            "url": "https://libvirt.org/sources/libvirt-12.6.0.tar.xz",
+                            "sha256": "1592256deb76fc94028ff083a4d9f06a74f3b92a66a1794f37bc26f21430c888",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 13830,
@@ -179,8 +179,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://www.spice-space.org/download/gtk/spice-gtk-0.42.tar.xz",
-                    "sha256": "9380117f1811ad1faa1812cb6602479b6290d4a0d8cc442d44427f7f6c0e7a58",
+                    "url": "https://gitlab.freedesktop.org/spice/spice-gtk/-/archive/v0.43/spice-gtk-v0.43.tar.gz",
+                    "sha256": "c1a59377d1cc0a62b38854b8c8f69d9ee8c75eab90df9bb96fe6b382d1057d63",
                     "x-checker-data": {
                         "type": "anitya",
                         "project-id": 11576,
@@ -196,8 +196,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://www.spice-space.org/download/releases/spice-protocol-0.14.3.tar.xz",
-                            "sha256": "f986e5bc2a1598532c4897f889afb0df9257ac21c160c083703ae7c8de99487a",
+                            "url": "https://www.spice-space.org/download/releases/spice-protocol-0.14.5.tar.xz",
+                            "sha256": "baf58449f6e89d19f475899ad5fb9196fdc46c03cc53233f4e39cf2978f9cff7",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 14892,
@@ -237,8 +237,8 @@
                     "sources": [
                         {
                             "type": "file",
-                            "url": "https://files.pythonhosted.org/packages/5d/bc/1e58593167fade7b544bfe9502a26dc860940a79ab306e651e7f13be68c2/pyparsing-2.4.6-py2.py3-none-any.whl",
-                            "sha256": "c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec",
+                            "url": "https://files.pythonhosted.org/packages/f3/91/9c6ee907786a473bf81c5f53cf703ba0957b23ab84c264080fb5a450416f/pyparsing-3.3.2.tar.gz",
+                            "sha256": "c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc",
                             "x-checker-data": {
                                 "type": "pypi",
                                 "name": "pyparsing"
@@ -252,8 +252,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://www.spice-space.org/download/libcacard/libcacard-2.8.1.tar.xz",
-                            "sha256": "fbbf4de8cb7db5bdff5ecb672ff0dbe6939fb9f344b900d51ba6295329a332e7",
+                            "url": "https://www.spice-space.org/download/libcacard/libcacard-2.8.2.tar.xz",
+                            "sha256": "45fc28a6ff3c7a359d4448132ca190f0a9c760540c445dba4597a5b71de40f68",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 18776,
@@ -274,8 +274,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://www.spice-space.org/download/releases/spice-0.15.1.tar.bz2",
-                            "sha256": "ada9af67ab321916bd7eb59e3d619a4a7796c08a28c732edfc7f02fc80b1a37a",
+                            "url": "https://www.spice-space.org/download/releases/spice-0.16.0.tar.bz2",
+                            "sha256": "0a6ec9528f05371261bbb2d46ff35e7b5c45ff89bb975a99af95a5f20ff4717d",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 4871,
@@ -304,8 +304,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://download.qemu.org/qemu-7.2.0.tar.xz",
-                    "sha256": "5b49ce2687744dad494ae90a898c52204a3406e84d072482a1e1be854eeb2157",
+                    "url": "https://download.qemu.org/qemu-11.1.0.tar.xz",
+                    "sha256": "6ee1d1a61f68212476b27108c26da5f449dc09b626d42f8279ba0dc2e08fa858",
                     "x-checker-data": {
                         "type": "anitya",
                         "project-id": 13607,
@@ -321,8 +321,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://src.fedoraproject.org/repo/pkgs/libslirp/libslirp-4.7.0.tar.xz/sha512/00b943ec758d7c2d3213a239b1cb7376d2d06d851afd9d5a808c787a76dfdd442570253ca509085c6c3ef528472aec9216587dbfc3348d7eb325b92b8f8b1ac3/libslirp-4.7.0.tar.xz",
-                            "sha256": "355aa2fbbaf6232135d7973fdbbbc85da22ea3f6a57f41164eeaa9e05d8a4f7e",
+                            "url": "https://gitlab.freedesktop.org/slirp/libslirp/-/archive/v4.9.3/libslirp-v4.9.3.tar.gz",
+                            "sha256": "ee698ca4ce05217ca7d520c7f0b1b1228fd7d32922dd32d1051c347152588417",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 96796,
@@ -340,8 +340,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-1.0.24.tar.bz2",
-                            "sha256": "7efd2685f7b327326dcfb85cee426d9b871fd70e22caa15bb68d595ce2a2b12a",
+                            "url": "https://github.com/libusb/libusb/releases/download/v1.0.30/libusb-1.0.30.tar.bz2",
+                            "sha256": "fea36f34f9156400209595e300840767ab1a385ede1dc7ee893015aea9c6dbaf",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 1749,
@@ -360,8 +360,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://spice-space.org/download/usbredir/usbredir-0.13.0.tar.xz",
-                            "sha256": "4ba6faa02c0ae6deeb4c53883d66ab54b3a5899bead42ce4ded9568b9a7dc46e",
+                            "url": "https://spice-space.org/download/usbredir/usbredir-0.15.0.tar.xz",
+                            "sha256": "6dc2a380277688a068191245dac2ab7063a552999d8ac3ad8e841c10ff050961",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 16012,
@@ -377,8 +377,8 @@
                     "sources": [
                         {
                             "type": "archive",
-                            "url": "https://src.fedoraproject.org/repo/pkgs/virglrenderer/virglrenderer-1.1.0.tar.bz2/sha512/d82a3b576eb9f006dc8eb21c805105a1011ec267f10b4702a415330c8bc64cb9e7308748e6e15793d8b68c888d9e42c35ddb8c3554229915251f7906c1c21550/virglrenderer-1.1.0.tar.bz2",
-                            "sha256": "5c680ab2dec434b28252fd2353f1e212d4d87beedbf6c1e74ae7e3d0f655b1bd",
+                            "url": "https://gitlab.freedesktop.org/virgl/virglrenderer/-/archive/1.3.0/virglrenderer-1.3.0.tar.bz2",
+                            "sha256": "088040d130eaa0458a978fe7867fbfb1fcf1fdff52bf3b27a00658828bc4189f",
                             "x-checker-data": {
                                 "type": "anitya",
                                 "project-id": 15968,
