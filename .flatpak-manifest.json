@@ -157,8 +157,8 @@
             "sources": [
                 {
                     "type": "archive",
-                    "url": "https://gitlab.freedesktop.org/spice/spice-gtk/-/archive/v0.43/spice-gtk-v0.43.tar.gz",
-                    "sha256": "c1a59377d1cc0a62b38854b8c8f69d9ee8c75eab90df9bb96fe6b382d1057d63",
+                    "url": "https://src.fedoraproject.org/repo/pkgs/spice-gtk/spice-gtk-0.43.tar.xz/sha512/b9e19a1f38b1ff6fb80d04fb9b7a5c0c97b3de6e7bc7dd8781701bb7a9b07de3d3e97558e2b408521c39a14ad647ceb44a1b493235ec8aec063f3669dd4ebed4/spice-gtk-0.43.tar.xz",
+                    "sha256": "cee26e5b2d22909f35b40a94398d1e863ca3962ee46494ca97aab206abc3203b",
                     "x-checker-data": {
                         "type": "anitya",
                         "project-id": 11576,
@@ -210,13 +210,13 @@
                     "name": "python-pyparsing",
                     "buildsystem": "simple",
                     "build-commands": [
-                        "pip3 install --prefix=/app pyparsing-2.4.6-py2.py3-none-any.whl"
+                        "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyparsing\" --no-build-isolation"
                     ],
                     "sources": [
                         {
                             "type": "file",
-                            "url": "https://files.pythonhosted.org/packages/f3/91/9c6ee907786a473bf81c5f53cf703ba0957b23ab84c264080fb5a450416f/pyparsing-3.3.2.tar.gz",
-                            "sha256": "c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc",
+                            "url": "https://files.pythonhosted.org/packages/05/e7/df2285f3d08fee213f2d041540fa4fc9ca6c2d44cf36d3a035bf2a8d2bcc/pyparsing-3.2.3-py3-none-any.whl",
+                            "sha256": "a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf",
                             "x-checker-data": {
                                 "type": "pypi",
                                 "name": "pyparsing"
