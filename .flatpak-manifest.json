@@ -346,7 +346,7 @@
                                 "type": "anitya",
                                 "project-id": 1749,
                                 "stable-only": true,
-                                "url-template": "https://github.com/libusb/libusb/releases/download/v1.0.24/libusb-$version.tar.bz2"
+                                "url-template": "https://github.com/libusb/libusb/releases/download/v$version/libusb-$version.tar.bz2"
                             }
                         }
                     ]
