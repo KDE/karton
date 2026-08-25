@@ -376,7 +376,13 @@
                         {
                             "type": "archive",
                             "url": "https://src.fedoraproject.org/repo/pkgs/virglrenderer/virglrenderer-1.1.0.tar.bz2/sha512/d82a3b576eb9f006dc8eb21c805105a1011ec267f10b4702a415330c8bc64cb9e7308748e6e15793d8b68c888d9e42c35ddb8c3554229915251f7906c1c21550/virglrenderer-1.1.0.tar.bz2",
-                            "sha256": "5c680ab2dec434b28252fd2353f1e212d4d87beedbf6c1e74ae7e3d0f655b1bd"
+                            "sha256": "5c680ab2dec434b28252fd2353f1e212d4d87beedbf6c1e74ae7e3d0f655b1bd",
+                            "x-checker-data": {
+                                "type": "anitya",
+                                "project-id": 15968,
+                                "stable-only": true,
+                                "url-template": "https://gitlab.freedesktop.org/virgl/virglrenderer/-/archive/$version/virglrenderer-$version.tar.bz2"
+                            }
                         }
                     ]
                 }
