@@ -483,7 +483,7 @@
                     "buildsystem": "simple",
                     "builddir": true,
                     "build-commands": [
-                        "make",
+                        "make -j $FLATPAK_BUILDER_N_JOBS",
                         "osinfo-db-import --dir /app/share/osinfo/ osinfo-db-*.tar.xz"
                     ],
                     "sources": [
