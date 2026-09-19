@@ -207,6 +207,28 @@
                     ]
                 },
                 {
+                    "name": "python-flit-core",
+                    "buildsystem": "simple",
+                    "build-commands": [
+                        "pip3 install --verbose --ignore-installed --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"flit-core\" --no-build-isolation"
+                    ],
+                    "sources": [
+                        {
+                            "type": "file",
+                            "url": "https://files.pythonhosted.org/packages/38/2a/8ea4bd54734f0fcbb507c28cb6b79d72f528e40498178a01cb35fc5d686f/flit_core-4.1.0-py3-none-any.whl",
+                            "sha256": "17398cdd2c38b24047a5a9c93089ec5c0bf12ec3d1469bbf69c27ed7965299db",
+                            "x-checker-data": {
+                                "type": "pypi",
+                                "name": "flit_core",
+                                "packagetype": "bdist_wheel"
+                            }
+                        }
+                    ],
+                    "cleanup": [
+                        "*"
+                    ]
+                },
+                {
                     "name": "python-pyparsing",
                     "buildsystem": "simple",
                     "build-commands": [
